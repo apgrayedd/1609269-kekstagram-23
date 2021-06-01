@@ -2,10 +2,7 @@ const getRandomNumber = (min,max) => {
   if (isNaN(min) || isNaN(max)) {
     return "Неверное значение в переменных";
   }
-  if (max < min) {
-    return Math.floor(Math.random() * (min - max + 1)) + max;
-  }
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (Math.max(max,min) - Math.min(max,min) + 1)) + Math.min(max,min);
 };
 const checkCommentError = (comment, maxLen) => {
   return String(comment).length < maxLen ? String(comment) : true;
@@ -15,6 +12,6 @@ let randomNumber;
 let comment = "Случайный комментарий";
 
 comment = checkCommentError(comment,MAX_LENGTH_COMMENT);
-randomNumber = getRandomNumber("re",2);
+randomNumber = getRandomNumber(-5,2);
 console.log(randomNumber);
 console.log(comment);
