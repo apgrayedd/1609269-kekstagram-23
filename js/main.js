@@ -1,11 +1,9 @@
 const MAX_LENGTH_COMMENT = 10;
 const getRandomNumber = (min,max) => Math.floor(Math.random() * (Math.max(max,min) - Math.min(max,min) + 1)) + Math.min(max,min);
+const NUMBER_OF_POSTS = getRandomNumber(1,25);
+const NUMBER_OF_COMMENT = getRandomNumber(1,100);
+
 const checkCommentError = (comment, maxLen) => comment.length < maxLen ? comment : false;
-
-const userComment = 'Случайный комментарий';
-checkCommentError(userComment,MAX_LENGTH_COMMENT);
-getRandomNumber(5,-1);
-
 const comments = [
   'Всё отлично!',
   'В целом всё неплохо. Но не всё.',
@@ -14,60 +12,37 @@ const comments = [
   'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
   'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!',
 ];
-
-function getRandomPost() {
-  function getRandomComment() {
-    return {
-      id: getRandomNumber(1,25),
-      avatar: 'img/avatar-' + getRandomNumber(1,6) + '.svg',
-      message: comments[getRandomNumber(0,comments.length-1)],
-      name: 'Артём',
-    };
+function mixedArray (array = []) {
+  const mixArray = [];
+  while (array.length > 0) {
+    const randomElem = array.splice(getRandomNumber(0, array.length - 1), 1)[0];
+    mixArray.push(randomElem);
   }
+  return mixArray;
+}
+function getRandomComment(idComment) {
+  const linkStrAvatar = 'img/avatar-';
+  const typeImgAvatar = '.svg';
   return {
-    id : getRandomNumber(1,25),
-    url : 'photos/' + getRandomNumber(1,25) + '.jpg',
+    id: idComment,
+    avatar: linkStrAvatar + getRandomNumber(1,6) + typeImgAvatar,
+    message: comments[getRandomNumber(0,comments.length-1)],
+    name: 'Артём',
+  };
+}
+function getRandomPost(idPost,idComments) {
+  const linkStrPost = 'photos/';
+  const typeImgPost = '.svg';
+  return {
+    id : idPost,
+    url : linkStrPost + getRandomNumber(1,25) + typeImgPost,
     description : 'Случайное описание',
     likes : getRandomNumber(15,200),
-    comments : new Array(getRandomNumber(0,10)).fill(null).map(() => getRandomComment()),
+    comments : new Array(NUMBER_OF_COMMENT).fill().map((elem,key) => getRandomComment(idComments[key++])),
   };
-};
+}
 
-const posts = new Array(10).fill(null).map(() => getRandomPost());
-console.log(posts);
-/*Структура каждого объекта должна быть следующей:
-
-    id, число — идентификатор описания. Это число от 1 до 25. Идентификаторы не должны повторяться.
-
-    url, строка — адрес картинки вида photos/{{i}}.jpg, где {{i}} — это число от 1 до 25. Адреса картинок не должны повторяться.
-
-    description, строка — описание фотографии. Описание придумайте самостоятельно.
-
-    likes, число — количество лайков, поставленных фотографии. Случайное число от 15 до 200.
-
-    comments, массив объектов — список комментариев, оставленных другими пользователями к этой фотографии. Количество комментариев к каждой фотографии вы определяете на своё усмотрение. Все комментарии генерируются случайным образом. Пример описания объекта с комментарием:
-
-    {
-      id: 135,
-      avatar: 'img/avatar-6.svg',
-      message: 'В целом всё неплохо. Но не всё.',
-      name: 'Артём',
-    }
-
-        У каждого комментария есть идентификатор — id — случайное число. Идентификаторы не должны повторяться.
-
-        Поле avatar — это строка, значение которой формируется по правилу img/avatar-{{случайное число от 1 до 6}}.svg. Аватарки подготовлены в директории img.
-
-        Для формирования текста комментария — message — вам необходимо взять одно или два случайных предложения из представленных ниже:
-
-        Всё отлично!
-        В целом всё неплохо. Но не всё.
-        Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.
-        Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.
-        Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.
-        Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!
-
-        Имена авторов также должны быть случайными. Набор имён для комментаторов составьте сами. Подставляйте случайное имя в поле name.*/
-
-
-
+const someIdComments = new Array(NUMBER_OF_COMMENT).fill().map((elem,key) => key+=1).sort(() => 0.5 - Math.random());
+const someIdPosts = mixedArray(new Array(NUMBER_OF_POSTS).fill().map((elem,key) => key+=1));
+const posts = new Array(NUMBER_OF_POSTS).fill().map((elem,key) => getRandomPost(someIdPosts[key++],someIdComments,comments));
+checkCommentError(posts[0]['comments'][0]['message'],MAX_LENGTH_COMMENT);
