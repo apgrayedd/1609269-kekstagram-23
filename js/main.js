@@ -15,10 +15,11 @@ function mixedArray (array = []) {
 function getRandomComment(idComment,comments,names) {
   const linkStrAvatar = 'img/avatar-';
   const typeImgAvatar = '.svg';
+  const message = comments[getRandomNumber(0,comments.length-1)];
   return {
     id: idComment,
     avatar: linkStrAvatar + getRandomNumber(1,6) + typeImgAvatar,
-    message: Math.random > 0.5 ? comments[getRandomNumber(0,comments.length-1)] : comments[getRandomNumber(0,comments.length-1)],
+    message: Math.random() < 0.5 ? message: message + message,
     name: names[getRandomNumber(0,names.length-1)],
   };
 }
