@@ -49,5 +49,4 @@ const someIdComments = new Array(NUMBER_OF_COMMENTS).fill().map((elem,key) => ke
 const someIdPosts = mixedArray(new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => key+=1));
 const someIdPhotos = mixedArray(new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => key+=1));
 const posts = new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => getRandomPost(someIdPosts[key],someIdComments,someIdPhotos[key],someComments,someNames));
-console.log(posts)
 checkCommentError(posts[0]['comments'][0]['message'],MAX_LENGTH_COMMENT);
