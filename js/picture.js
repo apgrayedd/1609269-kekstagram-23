@@ -1,7 +1,7 @@
 function addPost (postInfo) {
   const picturesPlace = document.querySelector('.pictures');
   const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
-  const postFragment = document.createDocumentFragment()
+  const postFragment = document.createDocumentFragment();
 
   postInfo.forEach( ({url,comments,description,likes}) => {
     const post = pictureTemplate.cloneNode(true);
