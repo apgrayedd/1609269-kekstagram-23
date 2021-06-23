@@ -5,6 +5,7 @@ import {addPost} from './picture.js';
 const MAX_LENGTH_COMMENT = 10;
 const NUMBER_OF_POSTS_AND_PHOTO = getRandomNumber(1,25);
 const MAX_OF_COMMENTS = 6;
+let MAX_COMMENTS = 2;
 
 const likes = {
   min: 15,
@@ -24,5 +25,5 @@ const someNames = [
 const someIdPosts = mixArray(new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => key+= 1));
 const someIdPhotos = mixArray(new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => key+= 1));
 const posts = new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => getRandomPost(someIdPosts[key],someIdPhotos[key],someComments,someNames,likes,MAX_OF_COMMENTS));
-addPost(posts);
+addPost(posts,MAX_COMMENTS);
 checkCommentError(posts[0]['comments'][0]['message'],MAX_LENGTH_COMMENT);
