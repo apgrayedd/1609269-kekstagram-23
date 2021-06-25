@@ -9,6 +9,7 @@ function addComments (comments,MAX_COMMENTS) {
   showPostComments.innerHTML = commentsOnPost + commentStringBefore + comments.length + commentStringAfter;
 
   social.innerHTML = '';
+  const commentsFragment = document.createDocumentFragment();
   comments.slice(0,MAX_COMMENTS).forEach((comment) => {
     const newComment = document.createElement('li');
     const newCommentImg = document.createElement('img');
@@ -21,10 +22,11 @@ function addComments (comments,MAX_COMMENTS) {
     newCommentImg.alt = 'Аватар комментатора фотографии';
     newCommentImg.width = COMMENT_AVATAR_WIDTH;
     newCommentImg.height = COMMENT_AVATAR_HEIGHT;
-    social.appendChild(newComment);
+    commentsFragment.appendChild(newComment);
     newComment.appendChild(newCommentImg);
     newComment.appendChild(newCommentText);
   });
+  social.appendChild(commentsFragment);
 }
 
 function showPost(post, comments, MAX_COMMENTS) {
@@ -32,32 +34,49 @@ function showPost(post, comments, MAX_COMMENTS) {
   const showPostImg = document.querySelector('.big-picture__img').querySelector('img');
   const showPostDescription = document.querySelector('.social__caption');
   const showPostLikes = document.querySelector('.likes-count');
+  const postImg = post.querySelector('.picture__img');
+  const postSumLikes = post.querySelector('.picture__likes');
+  const buttonLike = document.querySelector('.likes-count');
   const buttonLoader = document.querySelector('.comments-loader');
   const cancel = document.querySelector('#picture-cancel');
   let maxComments = MAX_COMMENTS;
 
-  post.addEventListener('click',(evt) => {
+  function clickLike (evt) {
     evt.preventDefault();
-    const postImg = post.querySelector('.picture__img');
-    const postSumLikes = post.querySelector('.picture__likes');
+    buttonLike.classList.toggle('likes-count--active');
+    const like = buttonLike.classList.contains('likes-count--active') ? 1 : -1;
+    showPostLikes.textContent = Number(showPostLikes.textContent) + like;
+    postSumLikes.textContent = showPostLikes.textContent;
+  }
 
+  function loaderClick (evt) {
+    evt.preventDefault();
+    maxComments += 2;
+    addComments(comments,maxComments);
+  }
+
+  function cancelClick (evt) {
+    evt.preventDefault();
+    sectionBigPicture.classList.add('hidden');
+    buttonLike.classList.remove('likes-count--active');
+    buttonLike.removeEventListener('click', clickLike, false);
+    buttonLoader.removeEventListener('click', loaderClick, false);
+    cancel.removeEventListener('click',cancelClick, false);
+  }
+
+  function showPostClick (evt) {
+    evt.preventDefault();
     sectionBigPicture.classList.remove('hidden');
     showPostImg.src = postImg.src;
     showPostDescription.textContent = postImg.alt;
     showPostLikes.textContent = postSumLikes.textContent;
-    addComments(comments,maxComments);
 
-    buttonLoader.addEventListener('click', (evt) => {
-      evt.preventDefault();
-      maxComments += 2;
-      addComments(comments,maxComments);
-    });
-  });
-
-  cancel.addEventListener('click', (evt) => {
-    evt.preventDefault();
-    sectionBigPicture.classList.add('hidden');
-  });
+    addComments(comments,MAX_COMMENTS);
+    buttonLike.addEventListener('click', clickLike, false);
+    buttonLoader.addEventListener('click', loaderClick, false);
+    cancel.addEventListener('click',cancelClick, false);
+  }
+  post.addEventListener('click',showPostClick, false);
 }
 
 function addPost (postInfo,MAX_COMMENTS) {
