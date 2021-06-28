@@ -67,9 +67,11 @@ function showPost(post, comments, MAX_COMMENTS) {
     buttonLike.classList.remove('likes-count--active');
     buttonLike.removeEventListener('click', clickLike, false);
     buttonLoader.removeEventListener('click', loaderClick, false);
+    //Подобный код был в академии
+    // eslint-disable-next-line no-use-before-define
     window.removeEventListener('keydown', closePostByKeyPress, false);
     cancel.removeEventListener('click',closePost, false);
-    body.classList.remove('modal-open')
+    body.classList.remove('modal-open');
   };
 
   function closePostByKeyPress (event) {
