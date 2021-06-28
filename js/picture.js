@@ -30,6 +30,7 @@ function addComments (comments,MAX_COMMENTS) {
 }
 
 function showPost(post, comments, MAX_COMMENTS) {
+  const body = document.querySelector('body');
   const sectionBigPicture = document.querySelector('.big-picture');
   const showPostImg = document.querySelector('.big-picture__img').querySelector('img');
   const showPostDescription = document.querySelector('.social__caption');
@@ -49,19 +50,34 @@ function showPost(post, comments, MAX_COMMENTS) {
     postSumLikes.textContent = showPostLikes.textContent;
   }
 
+  function checkButtonLoader () {
+    buttonLoader.style.display = maxComments >= comments.length ? 'none' : '';
+  }
+
   function loaderClick (evt) {
     evt.preventDefault();
     maxComments += 2;
     addComments(comments,maxComments);
+    checkButtonLoader();
   }
 
-  function cancelClick (evt) {
-    evt.preventDefault();
+  const closePost = () => {
+    maxComments = MAX_COMMENTS;
     sectionBigPicture.classList.add('hidden');
     buttonLike.classList.remove('likes-count--active');
     buttonLike.removeEventListener('click', clickLike, false);
     buttonLoader.removeEventListener('click', loaderClick, false);
-    cancel.removeEventListener('click',cancelClick, false);
+    window.removeEventListener('keydown', closePostByKeyPress, false);
+    cancel.removeEventListener('click',closePost, false);
+    body.classList.remove('modal-open')
+  };
+
+  function closePostByKeyPress (event) {
+    if (!event) {event = window.event;}
+    const keyCode = event.keyCode;
+    if (keyCode === 27) {
+      closePost();
+    }
   }
 
   function showPostClick (evt) {
@@ -71,10 +87,13 @@ function showPost(post, comments, MAX_COMMENTS) {
     showPostDescription.textContent = postImg.alt;
     showPostLikes.textContent = postSumLikes.textContent;
 
+    body.classList.add('modal-open');
     addComments(comments,MAX_COMMENTS);
     buttonLike.addEventListener('click', clickLike, false);
+    checkButtonLoader();
     buttonLoader.addEventListener('click', loaderClick, false);
-    cancel.addEventListener('click',cancelClick, false);
+    cancel.addEventListener('click', closePost, false);
+    window.addEventListener('keydown', closePostByKeyPress, false);
   }
   post.addEventListener('click',showPostClick, false);
 }
