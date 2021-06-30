@@ -9,4 +9,17 @@ function mixArray (items = []) {
   }
   return mixedArray;
 }
-export {getRandomNumber, checkCommentError, mixArray};
+
+function unique(arr) {
+  const result = [];
+
+  for (const str of arr) {
+    if (result.includes(str)) {
+      return false;
+    } else {
+      result.push(str);
+    }
+  }
+  return true;
+}
+export {unique,getRandomNumber, checkCommentError, mixArray};
