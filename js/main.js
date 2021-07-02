@@ -1,6 +1,7 @@
 import {getRandomPost} from './data.js';
 import {getRandomNumber, checkCommentError, mixArray} from './util.js';
 import {addPost} from './picture.js';
+import {loadFile} from './form.js';
 
 const MAX_LENGTH_COMMENT = 10;
 const NUMBER_OF_POSTS_AND_PHOTO = getRandomNumber(1,25);
@@ -27,3 +28,4 @@ const someIdPhotos = mixArray(new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((e
 const posts = new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => getRandomPost(someIdPosts[key],someIdPhotos[key],someComments,someNames,likes,MAX_OF_COMMENTS));
 addPost(posts,MAX_COMMENTS);
 checkCommentError(posts[0]['comments'][0]['message'],MAX_LENGTH_COMMENT);
+loadFile();
