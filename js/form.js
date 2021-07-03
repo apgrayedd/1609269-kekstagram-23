@@ -26,7 +26,23 @@ function choiceFileEffect (evt) {
   scalePreview.classList.add(`effects__preview--${radioEffect}`);
 }
 
-function fieldValidation () {
+function checkCommentPlace () {
+  const commentInput = document.querySelector('.text__description');
+  let status;
+
+  if (commentInput.value.length > 140) {
+    commentInput.setCustomValidity('Комментраий может быть не больше 140 символов');
+    status = false;
+  } else {
+    commentInput.setCustomValidity('');
+    status = true;
+  }
+  commentInput.reportValidity();
+
+  return status;
+}
+
+function checkHashPlace () {
   const hashTextInput = document.querySelector('.text__hashtags');
   const hashList = hashTextInput.value.split(' ');
   const hashListStatus = [];
@@ -74,6 +90,7 @@ function fieldValidation () {
 }
 
 function loadFile () {
+  const body = document.querySelector('body');
   const formChangeFile = document.querySelector('.img-upload__overlay');
   const formChangeImg = document.querySelector('.img-upload__preview img');
   const newPostFile = document.querySelector('#upload-file');
@@ -81,15 +98,27 @@ function loadFile () {
   const scaleButtonBigger = document.querySelector('.scale__control--bigger');
   const effectsList = document.querySelector('.effects__list');
   const hashTextInput = document.querySelector('.text__hashtags');
+  const commentInput = document.querySelector('.text__description');
   const buttonSubmit = document.querySelector('#upload-submit');
   const closeButton = document.querySelector('#upload-cancel');
 
   const closeNewPost = () => {
     formChangeFile.classList.add('hidden');
+    body.classList.remove('modal-open');
     scaleButtonSmaller.removeEventListener('click', rescaleFileSmaller, false);
     scaleButtonBigger.removeEventListener('click', rescaleFileBigger, false);
     effectsList.removeEventListener('change', choiceFileEffect, false);
-    hashTextInput.removeEventListener('input', fieldValidation, false);
+    commentInput.removeEventListener('mouseover', () => {
+      // eslint-disable-next-line no-use-before-define
+      window.removeEventListener('keydown', closeNewPostByEsc, false);
+    });
+    commentInput.removeEventListener('mouseout', () => {
+      // eslint-disable-next-line no-use-before-define
+      window.addEventListener('keydown', closeNewPostByEsc, false);
+    });
+    commentInput.removeEventListener('input', checkCommentPlace, false);
+    hashTextInput.removeEventListener('input', checkHashPlace, false);
+
     // eslint-disable-next-line no-use-before-define
     buttonSubmit.removeEventListener('input', checkerSubmitPost, false);
     // eslint-disable-next-line no-use-before-define
@@ -100,7 +129,7 @@ function loadFile () {
     const newPostForm = document.querySelector('.img-upload__form');
 
     evt.preventDefault();
-    if (fieldValidation()) {
+    if (checkHashPlace() && checkCommentPlace()) {
       closeNewPost();
       newPostForm.submit();
     }
@@ -108,6 +137,7 @@ function loadFile () {
 
   function closeNewPostByEsc (event) {
     if (!event) {event = window.event;}
+    event.preventDefault();
     const keyCode = event.keyCode;
     if (keyCode === 27) {
       closeNewPost();
@@ -120,13 +150,20 @@ function loadFile () {
       newFileReader.readAsDataURL(this.files[0]);
       newFileReader.addEventListener('load', () => {
         formChangeFile.classList.remove('hidden');
+        body.classList.add('modal-open');
         formChangeImg.src = newFileReader.result;
-
-        newPostFile.addEventListener('change', loadFileFunction, false);
         scaleButtonSmaller.addEventListener('click', rescaleFileSmaller, false);
         scaleButtonBigger.addEventListener('click', rescaleFileBigger, false);
         effectsList.addEventListener('change', choiceFileEffect, false);
-        hashTextInput.addEventListener('input', fieldValidation, false);
+        commentInput.addEventListener('input', checkCommentPlace, false);
+        commentInput.addEventListener('mouseover', () => {
+          window.removeEventListener('keydown', closeNewPostByEsc, false);
+        });
+        commentInput.addEventListener('mouseout', () => {
+          window.addEventListener('keydown', closeNewPostByEsc, false);
+        });
+        hashTextInput.addEventListener('input', checkHashPlace, false);
+
         buttonSubmit.addEventListener('click', checkerSubmitPost, false);
         closeButton.addEventListener('click', closeNewPost, false);
         window.addEventListener('keydown', closeNewPostByEsc, false);
