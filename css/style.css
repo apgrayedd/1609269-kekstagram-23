@@ -393,6 +393,7 @@ main {
 .img-upload__preview-container {
   position: relative;
   margin-bottom: 30px;
+  background-color: #1d1d1d;
 }
 
 

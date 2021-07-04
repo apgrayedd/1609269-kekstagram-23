@@ -56,7 +56,7 @@ function showPost(post, comments, MAX_COMMENTS) {
 
   function loaderClick (evt) {
     evt.preventDefault();
-    maxComments += 2;
+    maxComments += 5;
     addComments(comments,maxComments);
     checkButtonLoader();
   }
