@@ -19,11 +19,74 @@ function rescaleFileSmaller () {
 }
 
 function choiceFileEffect (evt) {
+  const sliderElement = document.querySelector('.effect-level__slider');
+  const sliderInput = document.querySelector('.effect-level__value');
   const scalePreview = document.querySelector('.img-upload__preview');
   const radioEffect = evt.target.value;
 
   scalePreview.classList = 'img-upload__preview';
   scalePreview.classList.add(`effects__preview--${radioEffect}`);
+  if (sliderElement.noUiSlider) {
+    sliderElement.noUiSlider.destroy();
+  }
+  noUiSlider.create(sliderElement, {
+    range: {
+      min: 0,
+      max: 100,
+    },
+    start: 100,
+    step: 1,
+    connect: 'lower',
+  });
+
+  switch(radioEffect) {
+    case 'phobos':
+      sliderElement.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: 30,
+        },
+        start: 30,
+      });
+      break;
+    case 'heat':
+      sliderElement.noUiSlider.updateOptions({
+        range: {
+          min: 0,
+          max: 20,
+        },
+        start: 20,
+      });
+      break;
+  }
+
+  sliderElement.noUiSlider.on('update', (values, handle, unencoded) => {
+    const radioEffectValue = unencoded[handle];
+    sliderInput.value = radioEffectValue;
+    switch (radioEffect) {
+      case 'none':
+        if (sliderElement.noUiSlider) {
+          scalePreview.style.filter = '';
+          sliderElement.noUiSlider.destroy();
+        }
+        break;
+      case 'chrome':
+        scalePreview.style.filter = `grayscale(${radioEffectValue/100})`;
+        break;
+      case 'sepia':
+        scalePreview.style.filter = `sepia(${radioEffectValue/100})`;
+        break;
+      case 'marvin':
+        scalePreview.style.filter = `invert(${radioEffectValue}%)`;
+        break;
+      case 'phobos':
+        scalePreview.style.filter = `blur(${radioEffectValue/10}px)`;
+        break;
+      case 'heat':
+        scalePreview.style.filter = `brightness(${radioEffectValue/10 + 1})`;
+        break;
+    }
+  });
 }
 
 function checkCommentPlace () {
