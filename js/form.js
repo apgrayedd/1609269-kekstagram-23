@@ -89,74 +89,36 @@ function choiceFileEffect (evt) {
   });
 }
 
-function checkCommentPlace () {
-  const commentInput = document.querySelector('.text__description');
-  let status;
+function checkField (fieldValue, fieldInput, MIN_LENGTH_FIELD, MAX_LENGTH_FIELD) {
+  const match = fieldValue.match(/^#[a-zA-Zа-юА-Ю0-9]{1,19}/);
 
-  if (commentInput.value.length > 140) {
-    commentInput.setCustomValidity('Комментраий может быть не больше 140 символов');
-    status = false;
-  } else {
-    commentInput.setCustomValidity('');
-    status = true;
-  }
-  commentInput.reportValidity();
-
-  return status;
-}
-
-function checkHashPlace () {
-  const hashTextInput = document.querySelector('.text__hashtags');
-  const hashList = hashTextInput.value.split(' ');
-  const hashListStatus = [];
-  let status = false;
-
-  if (hashList.length === 1 || hashList[0] === '') {
-    status = true;
-  }
-
-  for(let elem = 0; elem < hashList.length; elem++) {
-    const hashText = hashList[elem];
-    hashListStatus[elem] = false;
-    const match = hashText.match(/^#[a-zA-Zа-юА-Ю0-9]{1,19}/);
-
-    if (hashText[0] === '#') {
-      if (hashText.length < 2) {
-        hashTextInput.setCustomValidity('Хэш должен состоять хотя бы из 2х символов');
-      } else if (hashText.length > 20){
-        hashTextInput.setCustomValidity('Хэш должен состоять не больше 20 символов');
-      } else if (match) {
-        const result = match[0] === match['input'] ? hashText : false;
-        if (result) {
-          hashListStatus[elem] = hashText;
-        } else {
-          hashTextInput.setCustomValidity('Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.');
-        }
+  if (fieldValue[0] === '#') {
+    if (fieldValue.length < MIN_LENGTH_FIELD) {
+      fieldInput.setCustomValidity('Хэш должен состоять хотя бы из 2х символов');
+    } else if (fieldValue.length > MAX_LENGTH_FIELD){
+      fieldInput.setCustomValidity('Хэш должен состоять не больше 20 символов');
+    } else if (match) {
+      const result = match[0] === match['input'] ? fieldValue : false;
+      if (result) {
+        return fieldValue;
       } else {
-        hashTextInput.setCustomValidity('Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.');
+        fieldInput.setCustomValidity('Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.');
       }
     } else {
-      hashTextInput.setCustomValidity('Первым занком хэштега должен быть знак решетки "#"');
+      fieldInput.setCustomValidity('Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.');
     }
+  } else {
+    fieldInput.setCustomValidity('Первым занком хэштега должен быть знак решетки "#"');
   }
-  if (!unique(hashListStatus)) {
-    hashTextInput.setCustomValidity('Хэштеги не должны повторяться');
-  } else if (hashListStatus.length > 5) {
-    hashTextInput.setCustomValidity('Пост не может содержать больше 5 хэштегов');
-  } else if (hashListStatus.includes(false) === false) {
-    hashTextInput.setCustomValidity('');
-    status = true;
-  }
-  hashTextInput.reportValidity();
-
-  return status;
+  return false;
 }
 
-function loadFile () {
+function loadFile (MIN_LENGTH_HASH = 2,MAX_LENGTH_HASH = 20,MAX_NUMBER_HASH = 5, MAX_LENGTH_COMMENT = 140) {
   const body = document.querySelector('body');
   const formChangeFile = document.querySelector('.img-upload__overlay');
   const formChangeImg = document.querySelector('.img-upload__preview img');
   const newPostFile = document.querySelector('#upload-file');
+  const scalePreview = document.querySelector('.img-upload__preview');
   const scaleButtonSmaller = document.querySelector('.scale__control--smaller');
   const scaleButtonBigger = document.querySelector('.scale__control--bigger');
   const effectsList = document.querySelector('.effects__list');
@@ -165,20 +127,56 @@ function loadFile () {
   const buttonSubmit = document.querySelector('#upload-submit');
   const closeButton = document.querySelector('#upload-cancel');
 
+  function checkHashPlace () {
+    const hashList = hashTextInput.value.split(' ');
+    const hashListStatus = [];
+    let status = false;
+
+    if (hashList.length === 1 || hashList[0] === '') {
+      status = true;
+    }
+    for(let elem = 0; elem < hashList.length; elem++) {
+      hashListStatus[elem] = checkField(hashList[elem],hashTextInput, MIN_LENGTH_HASH, MAX_LENGTH_HASH);
+    }
+    if (!unique(hashListStatus)) {
+      hashTextInput.setCustomValidity('Хэштеги не должны повторяться');
+    } else if (hashListStatus.length > MAX_NUMBER_HASH) {
+      hashTextInput.setCustomValidity('Пост не может содержать больше 5 хэштегов');
+    } else if (hashListStatus.includes(false) === false) {
+      hashTextInput.setCustomValidity('');
+      status = true;
+    }
+    hashTextInput.reportValidity();
+
+    return status;
+  }
+
+  function checkCommentPlace () {
+    let status;
+
+    if (commentInput.value.length > MAX_LENGTH_COMMENT) {
+      commentInput.setCustomValidity('Комментраий может быть не больше 140 символов');
+      status = false;
+    } else {
+      commentInput.setCustomValidity('');
+      status = true;
+    }
+    commentInput.reportValidity();
+
+    return status;
+  }
+
   const closeNewPost = () => {
     formChangeFile.classList.add('hidden');
     body.classList.remove('modal-open');
+    scalePreview.style = '';
     scaleButtonSmaller.removeEventListener('click', rescaleFileSmaller, false);
     scaleButtonBigger.removeEventListener('click', rescaleFileBigger, false);
     effectsList.removeEventListener('change', choiceFileEffect, false);
-    commentInput.removeEventListener('mouseover', () => {
-      // eslint-disable-next-line no-use-before-define
-      window.removeEventListener('keydown', closeNewPostByEsc, false);
-    });
-    commentInput.removeEventListener('mouseout', () => {
-      // eslint-disable-next-line no-use-before-define
-      window.addEventListener('keydown', closeNewPostByEsc, false);
-    });
+    // eslint-disable-next-line no-use-before-define
+    commentInput.removeEventListener('mouseover', removeEventCloseByEsc);
+    // eslint-disable-next-line no-use-before-define
+    commentInput.removeEventListener('mouseout', addEventCloseByEsc);
     commentInput.removeEventListener('input', checkCommentPlace, false);
     hashTextInput.removeEventListener('input', checkHashPlace, false);
 
@@ -200,11 +198,19 @@ function loadFile () {
 
   function closeNewPostByEsc (event) {
     if (!event) {event = window.event;}
-    event.preventDefault();
     const keyCode = event.keyCode;
     if (keyCode === 27) {
+      event.preventDefault();
       closeNewPost();
     }
+  }
+
+  function removeEventCloseByEsc () {
+    window.removeEventListener('keydown', closeNewPostByEsc, false);
+  }
+
+  function addEventCloseByEsc () {
+    window.addEventListener('keydown', closeNewPostByEsc, false);
   }
 
   function loadFileFunction () {
@@ -219,12 +225,8 @@ function loadFile () {
         scaleButtonBigger.addEventListener('click', rescaleFileBigger, false);
         effectsList.addEventListener('change', choiceFileEffect, false);
         commentInput.addEventListener('input', checkCommentPlace, false);
-        commentInput.addEventListener('mouseover', () => {
-          window.removeEventListener('keydown', closeNewPostByEsc, false);
-        });
-        commentInput.addEventListener('mouseout', () => {
-          window.addEventListener('keydown', closeNewPostByEsc, false);
-        });
+        commentInput.addEventListener('mouseover', removeEventCloseByEsc, false);
+        commentInput.addEventListener('mouseout', addEventCloseByEsc, false);
         hashTextInput.addEventListener('input', checkHashPlace, false);
 
         buttonSubmit.addEventListener('click', checkerSubmitPost, false);
