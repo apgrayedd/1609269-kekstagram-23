@@ -225,8 +225,8 @@ function loadFile (MIN_LENGTH_HASH = 2,MAX_LENGTH_HASH = 20,MAX_NUMBER_HASH = 5,
         scaleButtonBigger.addEventListener('click', rescaleFileBigger, false);
         effectsList.addEventListener('change', choiceFileEffect, false);
         commentInput.addEventListener('input', checkCommentPlace, false);
-        commentInput.addEventListener('mouseover', removeEventCloseByEsc, false);
-        commentInput.addEventListener('mouseout', addEventCloseByEsc, false);
+        commentInput.addEventListener('focus', removeEventCloseByEsc, false);
+        commentInput.addEventListener('blur', addEventCloseByEsc, false);
         hashTextInput.addEventListener('input', checkHashPlace, false);
 
         buttonSubmit.addEventListener('click', checkerSubmitPost, false);
