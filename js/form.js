@@ -18,102 +18,49 @@ function rescaleFileSmaller () {
   scalePreview.style = `transform: scale(${(scaleCount.value.replace('%',''))/100})`;
 }
 
-function choiceFileEffect (evt) {
-  const sliderElement = document.querySelector('.effect-level__slider');
-  const sliderInput = document.querySelector('.effect-level__value');
-  const scalePreview = document.querySelector('.img-upload__preview');
-  const radioEffect = evt.target.value;
-
-  scalePreview.classList = 'img-upload__preview';
-  scalePreview.classList.add(`effects__preview--${radioEffect}`);
-  if (sliderElement.noUiSlider) {
-    sliderElement.noUiSlider.destroy();
+function firstSymbol (fieldValue,firstSymbolValue) {
+  if (fieldValue[0] !== firstSymbolValue) {
+    return `Первым занком хэштега должен быть знак решетки "${firstSymbolValue}"`;
   }
-  noUiSlider.create(sliderElement, {
-    range: {
-      min: 0,
-      max: 100,
-    },
-    start: 100,
-    step: 1,
-    connect: 'lower',
-  });
-
-  switch(radioEffect) {
-    case 'phobos':
-      sliderElement.noUiSlider.updateOptions({
-        range: {
-          min: 0,
-          max: 30,
-        },
-        start: 30,
-      });
-      break;
-    case 'heat':
-      sliderElement.noUiSlider.updateOptions({
-        range: {
-          min: 0,
-          max: 20,
-        },
-        start: 20,
-      });
-      break;
-  }
-
-  sliderElement.noUiSlider.on('update', (values, handle, unencoded) => {
-    const radioEffectValue = unencoded[handle];
-    sliderInput.value = radioEffectValue;
-    switch (radioEffect) {
-      case 'none':
-        if (sliderElement.noUiSlider) {
-          scalePreview.style.filter = '';
-          sliderElement.noUiSlider.destroy();
-        }
-        break;
-      case 'chrome':
-        scalePreview.style.filter = `grayscale(${radioEffectValue/100})`;
-        break;
-      case 'sepia':
-        scalePreview.style.filter = `sepia(${radioEffectValue/100})`;
-        break;
-      case 'marvin':
-        scalePreview.style.filter = `invert(${radioEffectValue}%)`;
-        break;
-      case 'phobos':
-        scalePreview.style.filter = `blur(${radioEffectValue/10}px)`;
-        break;
-      case 'heat':
-        scalePreview.style.filter = `brightness(${radioEffectValue/10 + 1})`;
-        break;
-    }
-  });
 }
 
-function checkField (fieldValue, fieldInput, MIN_LENGTH_FIELD, MAX_LENGTH_FIELD) {
-  const match = fieldValue.match(/^#[a-zA-Zа-юА-Ю0-9]{1,19}/);
-
-  if (fieldValue[0] === '#') {
-    if (fieldValue.length < MIN_LENGTH_FIELD) {
-      fieldInput.setCustomValidity('Хэш должен состоять хотя бы из 2х символов');
-    } else if (fieldValue.length > MAX_LENGTH_FIELD){
-      fieldInput.setCustomValidity('Хэш должен состоять не больше 20 символов');
-    } else if (match) {
-      const result = match[0] === match['input'] ? fieldValue : false;
-      if (result) {
-        return fieldValue;
-      } else {
-        fieldInput.setCustomValidity('Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.');
-      }
-    } else {
-      fieldInput.setCustomValidity('Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.');
-    }
-  } else {
-    fieldInput.setCustomValidity('Первым занком хэштега должен быть знак решетки "#"');
+function minLength (fieldValue, MIN_LENGTH_FIELD) {
+  if (fieldValue.length < MIN_LENGTH_FIELD) {
+    return `Хэш должен состоять хотя бы из ${MIN_LENGTH_FIELD}х символов`;
   }
-  return false;
 }
 
-function loadFile (MIN_LENGTH_HASH = 2,MAX_LENGTH_HASH = 20,MAX_NUMBER_HASH = 5, MAX_LENGTH_COMMENT = 140) {
+function maxLength (fieldValue, MAX_LENGTH_FIELD) {
+  if (fieldValue.length > MAX_LENGTH_FIELD) {
+    return `Хэш должен состоять не больше ${MAX_LENGTH_FIELD} символов`;
+  }
+}
+
+function matchValidation (fieldValue) {
+  const match = fieldValue.match(/[a-zA-Zа-юА-Ю0-9]*/);
+
+  if (!match) {
+    return 'Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.';
+  }
+  const result = match[0] === match['input'] ? fieldValue : false;
+  if (!result) {
+    return 'Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.';
+  }
+}
+
+function checkField (fieldInput, fieldValue, hashOptions) {
+  const message = firstSymbol(fieldValue,hashOptions.firstSymbol) ||
+                  minLength(fieldValue,hashOptions.min) ||
+                  maxLength(fieldValue, hashOptions.max) ||
+                  matchValidation(fieldValue.slice(1));
+  if (message) {
+    fieldInput.setCustomValidity(message);
+    fieldInput.reportValidity();
+    return message;
+  }
+}
+
+function loadFile (hashFieldOptions, maxLengthComment,sliderEffectsOptions) {
   const body = document.querySelector('body');
   const formChangeFile = document.querySelector('.img-upload__overlay');
   const formChangeImg = document.querySelector('.img-upload__preview img');
@@ -127,22 +74,65 @@ function loadFile (MIN_LENGTH_HASH = 2,MAX_LENGTH_HASH = 20,MAX_NUMBER_HASH = 5,
   const buttonSubmit = document.querySelector('#upload-submit');
   const closeButton = document.querySelector('#upload-cancel');
 
+  function choiceFileEffect (evt) {
+    const sliderElement = document.querySelector('.effect-level__slider');
+    const sliderInput = document.querySelector('.effect-level__value');
+    const radioEffect = evt.target.value;
+
+    scalePreview.classList = 'img-upload__preview';
+    scalePreview.classList.add(`effects__preview--${radioEffect}`);
+    if (sliderElement.noUiSlider) {
+      sliderElement.noUiSlider.destroy();
+    }
+    noUiSlider.create(sliderElement, {
+      range: {
+        min: 0,
+        max: 100,
+      },
+      start: 100,
+      step: 1,
+      connect: 'lower',
+    });
+    if (sliderEffectsOptions) {
+      sliderEffectsOptions.forEach((option) => {
+        if (radioEffect === option.effectName && option.effectSliderOption) {
+          sliderElement.noUiSlider.updateOptions(option.effectSliderOption);
+        }
+      });
+    }
+    sliderElement.noUiSlider.on('update', (values, handle, unencoded) => {
+      const radioEffectValue = unencoded[handle];
+      sliderInput.value = radioEffectValue;
+      scalePreview.style.filter = '';
+      if (radioEffect === 'none') {
+        sliderElement.noUiSlider.destroy();
+      }
+      if (sliderEffectsOptions) {
+        sliderEffectsOptions.forEach((option) => {
+          if (radioEffect === option.effectName) {
+            scalePreview.style.filter = option.filter(radioEffectValue);
+          }
+        });
+      }
+    });
+  }
+
   function checkHashPlace () {
     const hashList = hashTextInput.value.split(' ');
     const hashListStatus = [];
     let status = false;
 
-    if (hashList.length === 1 || hashList[0] === '') {
+    if (!hashList || hashList[0] === '') {
       status = true;
     }
-    for(let elem = 0; elem < hashList.length; elem++) {
-      hashListStatus[elem] = checkField(hashList[elem],hashTextInput, MIN_LENGTH_HASH, MAX_LENGTH_HASH);
-    }
-    if (!unique(hashListStatus)) {
+    hashList.map((hashValue, hashKey) => {
+      hashListStatus[hashKey] = !checkField(hashTextInput, hashValue, hashFieldOptions.hashOptions)? hashValue : false;
+    });
+    if (!unique(hashListStatus) && !hashListStatus.includes(false)) {
       hashTextInput.setCustomValidity('Хэштеги не должны повторяться');
-    } else if (hashListStatus.length > MAX_NUMBER_HASH) {
+    } else if (hashListStatus.length > hashFieldOptions.numberHash) {
       hashTextInput.setCustomValidity('Пост не может содержать больше 5 хэштегов');
-    } else if (hashListStatus.includes(false) === false) {
+    } else if (!hashListStatus.includes(false)) {
       hashTextInput.setCustomValidity('');
       status = true;
     }
@@ -154,8 +144,8 @@ function loadFile (MIN_LENGTH_HASH = 2,MAX_LENGTH_HASH = 20,MAX_NUMBER_HASH = 5,
   function checkCommentPlace () {
     let status;
 
-    if (commentInput.value.length > MAX_LENGTH_COMMENT) {
-      commentInput.setCustomValidity('Комментраий может быть не больше 140 символов');
+    if (commentInput.value.length > maxLengthComment) {
+      commentInput.setCustomValidity(`Комментраий может быть не больше ${maxLengthComment} символов`);
       status = false;
     } else {
       commentInput.setCustomValidity('');
@@ -174,9 +164,9 @@ function loadFile (MIN_LENGTH_HASH = 2,MAX_LENGTH_HASH = 20,MAX_NUMBER_HASH = 5,
     scaleButtonBigger.removeEventListener('click', rescaleFileBigger, false);
     effectsList.removeEventListener('change', choiceFileEffect, false);
     // eslint-disable-next-line no-use-before-define
-    commentInput.removeEventListener('mouseover', removeEventCloseByEsc);
+    commentInput.removeEventListener('focus', removeEventCloseByEsc);
     // eslint-disable-next-line no-use-before-define
-    commentInput.removeEventListener('mouseout', addEventCloseByEsc);
+    commentInput.removeEventListener('blur', addEventCloseByEsc);
     commentInput.removeEventListener('input', checkCommentPlace, false);
     hashTextInput.removeEventListener('input', checkHashPlace, false);
 

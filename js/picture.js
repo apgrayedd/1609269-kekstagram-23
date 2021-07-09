@@ -3,10 +3,8 @@ function addComments (comments,MAX_COMMENTS) {
   const COMMENT_AVATAR_WIDTH = '35';
   const social = document.querySelector('.social__comments');
   const commentsOnPost = comments.length > MAX_COMMENTS ? MAX_COMMENTS : comments.length;
-  const commentStringBefore = ' из <span class="comments-count">';
-  const commentStringAfter = '</span> комментариев';
   const showPostComments = document.querySelector('.social__comment-count');
-  showPostComments.innerHTML = commentsOnPost + commentStringBefore + comments.length + commentStringAfter;
+  showPostComments.innerHTML = `${commentsOnPost} из <span class="comments-count">${comments.length}</span> комментариев`;
 
   social.innerHTML = '';
   const commentsFragment = document.createDocumentFragment();
@@ -78,6 +76,7 @@ function showPost(post, comments, MAX_COMMENTS) {
     if (!event) {event = window.event;}
     const keyCode = event.keyCode;
     if (keyCode === 27) {
+      event.preventDefault();
       closePost();
     }
   }
