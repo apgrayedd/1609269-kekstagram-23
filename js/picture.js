@@ -32,6 +32,13 @@ function addComments (comments, avatarOptions, MAX_COMMENTS) {
   social.appendChild(commentsFragment);
 }
 
+function clickLike (buttonLike, postLikesCount, likesCount) {
+  buttonLike.classList.toggle('likes-count--active');
+  const like = buttonLike.classList.contains('likes-count--active') ? 1 : -1;
+  likesCount.textContent = Number(likesCount.textContent) + like;
+  postLikesCount.textContent = likesCount.textContent;
+}
+
 function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
   const body = document.querySelector('body');
   const sectionBigPicture = document.querySelector('.big-picture');
@@ -45,12 +52,9 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
   const cancel = document.querySelector('#picture-cancel');
   let maxComments = MAX_COMMENTS;
 
-  function clickLike (evt) {
+  function clickLikeFunction (evt) {
     evt.preventDefault();
-    buttonLike.classList.toggle('likes-count--active');
-    const like = buttonLike.classList.contains('likes-count--active') ? 1 : -1;
-    showPostLikes.textContent = Number(showPostLikes.textContent) + like;
-    postSumLikes.textContent = showPostLikes.textContent;
+    clickLike(buttonLike, postSumLikes, showPostLikes);
   }
 
   function checkButtonLoader () {
@@ -68,9 +72,8 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
     maxComments = MAX_COMMENTS;
     sectionBigPicture.classList.add('hidden');
     buttonLike.classList.remove('likes-count--active');
-    buttonLike.removeEventListener('click', clickLike, false);
+    buttonLike.removeEventListener('click', clickLikeFunction, false);
     buttonLoader.removeEventListener('click', loaderClick, false);
-    //Подобный код был в академии
     // eslint-disable-next-line no-use-before-define
     window.removeEventListener('keydown', closePostByKeyPress, false);
     cancel.removeEventListener('click',closePost, false);
@@ -95,7 +98,7 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
 
     body.classList.add('modal-open');
     addComments(comments, avatarOptions, MAX_COMMENTS);
-    buttonLike.addEventListener('click', clickLike, false);
+    buttonLike.addEventListener('click', clickLikeFunction, false);
     checkButtonLoader();
     buttonLoader.addEventListener('click', loaderClick, false);
     cancel.addEventListener('click', closePost, false);

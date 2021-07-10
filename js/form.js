@@ -43,16 +43,20 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
   const sliderElement = document.querySelector('.effect-level__slider');
   const sliderInput = document.querySelector('.effect-level__value');
   const radioEffect = evt.target.value;
-  const sliderStandartOption = findInObj(sliderEffectsOptions, 'effectName', 'none', 'effectSliderOption');
+  const sliderStandardOption = findInObj(sliderEffectsOptions, 'effectName', 'none', 'effectSliderOption');
 
   scalePreview.classList = 'img-upload__preview';
   scalePreview.classList.add(`effects__preview--${radioEffect}`);
+  if (radioEffect === 'none') {
+    sliderElement.noUiSlider.destroy();
+    return 'Not have slider';
+  }
   if (sliderElement.noUiSlider) {
     sliderElement.noUiSlider.destroy();
   }
 
-  if (sliderStandartOption) {
-    noUiSlider.create(sliderElement, sliderStandartOption);
+  if (sliderStandardOption) {
+    noUiSlider.create(sliderElement, sliderStandardOption);
   } else {
     noUiSlider.create(sliderElement, {
       range: {
@@ -67,7 +71,6 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
   if (sliderEffectsOptions) {
     sliderEffectsOptions.forEach((option) => {
       if (radioEffect === option.effectName &&
-          radioEffect !== 'none' &&
           option.effectSliderOption) {
         sliderElement.noUiSlider.updateOptions(option.effectSliderOption);
       }
@@ -77,11 +80,10 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
     const radioEffectValue = unencoded[handle];
     sliderInput.value = radioEffectValue;
     scalePreview.style.filter = '';
-    if (radioEffect === 'none') {
-      sliderElement.noUiSlider.destroy();
-    } else if (sliderEffectsOptions) {
+    if (sliderEffectsOptions) {
       sliderEffectsOptions.forEach((option) => {
-        if (radioEffect === option.effectName) {
+        if (radioEffect === option.effectName &&
+            radioEffect !== 'none') {
           scalePreview.style.filter = option.filter(radioEffectValue);
         }
       });

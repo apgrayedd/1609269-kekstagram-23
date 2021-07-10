@@ -23,16 +23,17 @@ function checkRepeatArr(arr) {
 }
 
 function findInObj (obj, objKey, value, objKeyForReturn) {
-  for(let elem = 0; elem < obj.length; elem++) {
-    if (obj[elem][objKey] === value){
+  for(const elem in obj) {
+    if (elem[objKey] === value){
       if (objKeyForReturn) {
-        return obj[elem][objKeyForReturn];
+        return elem[objKeyForReturn];
       } else {
         return true;
       }
     }
   }
 }
+
 function firstSymbol (fieldValue,firstSymbolValue) {
   if (fieldValue[0] !== firstSymbolValue) {
     return `Первым знаком поля должен быть знак "${firstSymbolValue}"`;

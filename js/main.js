@@ -20,7 +20,7 @@ const hashFieldOptions = {
 const effectsOptions = [
   {
     effectName : 'none',
-    effectSliderOption : {range: {min: 0,max: 100},start: 10, step: 1, connect: 'lower'},
+    effectSliderOption : {range: {min: 0,max: 100},start: 100, step: 1, connect: 'lower'},
   },
   {
     effectName : 'chrome',
