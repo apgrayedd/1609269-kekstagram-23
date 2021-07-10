@@ -4,7 +4,8 @@ import {
   firstSymbol,
   minLength,
   maxLength,
-  matchValidation
+  matchValidation,
+  functionByKeyDown
 } from './util.js';
 
 function rescaleFileBigger () {
@@ -179,13 +180,8 @@ function loadFile (hashFieldOptions, maxLengthComment,sliderEffectsOptions) {
     }
   }
 
-  function closeNewPostByEsc (event) {
-    if (!event) {event = window.event;}
-    const keyCode = event.keyCode;
-    if (keyCode === 27) {
-      event.preventDefault();
-      closeNewPost();
-    }
+  function closeNewPostByEsc (evt) {
+    functionByKeyDown(evt, 27, closeNewPost);
   }
 
   function removeEventCloseByEsc () {

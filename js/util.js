@@ -63,6 +63,17 @@ function matchValidation (fieldValue) {
     return 'Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.';
   }
 }
+
+
+function functionByKeyDown(evt, keyCode, eventFunction) {
+  if (!evt) {evt = window.event;}
+  const evtKeyCode = evt.keyCode;
+  if (evtKeyCode === keyCode) {
+    evt.preventDefault();
+    eventFunction();
+  }
+}
+
 export {
   checkRepeatArr,
   findInObj,
@@ -71,5 +82,6 @@ export {
   firstSymbol,
   minLength,
   maxLength,
-  matchValidation
+  matchValidation,
+  functionByKeyDown
 };
