@@ -49,6 +49,7 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
   scalePreview.classList.add(`effects__preview--${radioEffect}`);
   if (radioEffect === 'none') {
     sliderElement.noUiSlider.destroy();
+    scalePreview.style.filter = '';
     return 'Not have slider';
   }
   if (sliderElement.noUiSlider) {
@@ -82,8 +83,7 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
     scalePreview.style.filter = '';
     if (sliderEffectsOptions) {
       sliderEffectsOptions.forEach((option) => {
-        if (radioEffect === option.effectName &&
-            radioEffect !== 'none') {
+        if (radioEffect === option.effectName) {
           scalePreview.style.filter = option.filter(radioEffectValue);
         }
       });
