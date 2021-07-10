@@ -1,3 +1,5 @@
+import {createHTMLElement} from './util.js';
+
 function addComments (comments, avatarOptions, MAX_COMMENTS) {
   const social = document.querySelector('.social__comments');
   const commentsOnPost = comments.length > MAX_COMMENTS ? MAX_COMMENTS : comments.length;
@@ -7,16 +9,22 @@ function addComments (comments, avatarOptions, MAX_COMMENTS) {
   social.innerHTML = '';
   const commentsFragment = document.createDocumentFragment();
   comments.slice(0,MAX_COMMENTS).forEach((comment) => {
-    const newComment = document.createElement('li');
-    const newCommentImg = document.createElement('img');
-    const newCommentText = document.createElement('p');
-    newComment.classList.add('social__comment');
-    newCommentImg.classList.add('social__picture');
-    newCommentText.classList.add('social__text');
-    newCommentImg.src = comment.avatar;
-    newCommentText.textContent = comment.message;
-    newCommentImg.width = avatarOptions.width;
-    newCommentImg.height = avatarOptions.height;
+    const newComment = createHTMLElement(
+      'li',
+      ['social__comment'],
+    );
+    const newCommentImg = createHTMLElement(
+      'img',
+      ['social__picture'], {
+        src: comment.avatar,
+        width: avatarOptions.width,
+        height: avatarOptions.height,
+      });
+    const newCommentText = createHTMLElement(
+      'p',
+      ['social__text'],{
+        textContent: comment.message,
+      });
     commentsFragment.appendChild(newComment);
     newComment.appendChild(newCommentImg);
     newComment.appendChild(newCommentText);

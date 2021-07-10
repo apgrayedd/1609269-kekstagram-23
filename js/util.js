@@ -74,6 +74,21 @@ function functionByKeyDown(evt, keyCode, eventFunction) {
   }
 }
 
+function createHTMLElement(tag, classArr, addAttributesArr) {
+  const newElement = document.createElement(tag);
+  if (classArr) {
+    classArr.forEach((classItem) => {
+      newElement.classList.add(classItem);
+    });
+  }
+  if (addAttributesArr) {
+    for (const addAttributKey in addAttributesArr) {
+      newElement[addAttributKey] = addAttributesArr[addAttributKey];
+    }
+  }
+  return newElement;
+}
+
 export {
   checkRepeatArr,
   findInObj,
@@ -83,5 +98,6 @@ export {
   minLength,
   maxLength,
   matchValidation,
-  functionByKeyDown
+  functionByKeyDown,
+  createHTMLElement
 };
