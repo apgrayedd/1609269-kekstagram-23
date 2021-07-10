@@ -1,6 +1,4 @@
-function addComments (comments,MAX_COMMENTS) {
-  const COMMENT_AVATAR_HEIGHT = '35';
-  const COMMENT_AVATAR_WIDTH = '35';
+function addComments (comments, avatarOptions, MAX_COMMENTS) {
   const social = document.querySelector('.social__comments');
   const commentsOnPost = comments.length > MAX_COMMENTS ? MAX_COMMENTS : comments.length;
   const showPostComments = document.querySelector('.social__comment-count');
@@ -17,9 +15,8 @@ function addComments (comments,MAX_COMMENTS) {
     newCommentText.classList.add('social__text');
     newCommentImg.src = comment.avatar;
     newCommentText.textContent = comment.message;
-    newCommentImg.alt = 'Аватар комментатора фотографии';
-    newCommentImg.width = COMMENT_AVATAR_WIDTH;
-    newCommentImg.height = COMMENT_AVATAR_HEIGHT;
+    newCommentImg.width = avatarOptions.width;
+    newCommentImg.height = avatarOptions.height;
     commentsFragment.appendChild(newComment);
     newComment.appendChild(newCommentImg);
     newComment.appendChild(newCommentText);
@@ -27,7 +24,7 @@ function addComments (comments,MAX_COMMENTS) {
   social.appendChild(commentsFragment);
 }
 
-function showPost(post, comments, MAX_COMMENTS) {
+function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
   const body = document.querySelector('body');
   const sectionBigPicture = document.querySelector('.big-picture');
   const showPostImg = document.querySelector('.big-picture__img').querySelector('img');
@@ -54,8 +51,8 @@ function showPost(post, comments, MAX_COMMENTS) {
 
   function loaderClick (evt) {
     evt.preventDefault();
-    maxComments += 5;
-    addComments(comments,maxComments);
+    maxComments += MAX_COMMENTS;
+    addComments(comments, avatarOptions, maxComments);
     checkButtonLoader();
   }
 
@@ -89,7 +86,7 @@ function showPost(post, comments, MAX_COMMENTS) {
     showPostLikes.textContent = postSumLikes.textContent;
 
     body.classList.add('modal-open');
-    addComments(comments,MAX_COMMENTS);
+    addComments(comments, avatarOptions, MAX_COMMENTS);
     buttonLike.addEventListener('click', clickLike, false);
     checkButtonLoader();
     buttonLoader.addEventListener('click', loaderClick, false);
@@ -99,21 +96,22 @@ function showPost(post, comments, MAX_COMMENTS) {
   post.addEventListener('click',showPostClick, false);
 }
 
-function addPost (postInfo,MAX_COMMENTS) {
+function addPost (postInfo,avatarOptions,MAX_COMMENTS) {
   const picturesPlace = document.querySelector('.pictures');
   const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
   const postFragment = document.createDocumentFragment();
 
-  postInfo.forEach( ({url,comments,description,likes}) => {
+  postInfo.forEach( ({id,url,likes,comments,description}) => {
     const post = pictureTemplate.cloneNode(true);
     const postImg = post.querySelector('.picture__img');
     const postSumComments = post.querySelector('.picture__comments');
     const postSumLikes = post.querySelector('.picture__likes');
+    postImg.id = id;
     postImg.src = url;
     postImg.alt = description;
     postSumComments.textContent = comments.length;
     postSumLikes.textContent= likes;
-    showPost(post,comments,MAX_COMMENTS);
+    showPost(post, comments, avatarOptions, MAX_COMMENTS);
     postFragment.appendChild(post);
   });
   picturesPlace.appendChild(postFragment);
