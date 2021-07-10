@@ -1,4 +1,12 @@
-import {unique} from './util.js';
+import {
+  checkRepeatArr,
+  findInObj,
+  firstSymbol,
+  minLength,
+  maxLength,
+  matchValidation,
+  functionByKeyDown
+} from './util.js';
 
 function rescaleFileBigger () {
   const scalePreview = document.querySelector('.img-upload__preview');
@@ -18,82 +26,113 @@ function rescaleFileSmaller () {
   scalePreview.style = `transform: scale(${(scaleCount.value.replace('%',''))/100})`;
 }
 
-function choiceFileEffect (evt) {
+function checkField (fieldInput, fieldValue, hashOptions) {
+  const message = firstSymbol(fieldValue,hashOptions.firstSymbol) ||
+                  minLength(fieldValue,hashOptions.min) ||
+                  maxLength(fieldValue, hashOptions.max) ||
+                  matchValidation(fieldValue.slice(1));
+  if (message) {
+    fieldInput.setCustomValidity(message);
+    fieldInput.reportValidity();
+    return message;
+  }
+}
+
+function choiceFileEffect (evt, sliderEffectsOptions) {
   const scalePreview = document.querySelector('.img-upload__preview');
+  const sliderElement = document.querySelector('.effect-level__slider');
+  const sliderInput = document.querySelector('.effect-level__value');
   const radioEffect = evt.target.value;
+  const sliderStandardOption = findInObj(sliderEffectsOptions, 'effectName', 'none', 'effectSliderOption');
 
   scalePreview.classList = 'img-upload__preview';
   scalePreview.classList.add(`effects__preview--${radioEffect}`);
+  if (radioEffect === 'none') {
+    sliderElement.noUiSlider.destroy();
+    scalePreview.style.filter = '';
+    return 'Not have slider';
+  }
+  if (sliderElement.noUiSlider) {
+    sliderElement.noUiSlider.destroy();
+  }
+
+  if (sliderStandardOption) {
+    noUiSlider.create(sliderElement, sliderStandardOption);
+  } else {
+    noUiSlider.create(sliderElement, {
+      range: {
+        min: 0,
+        max: 100,
+      },
+      start: 100,
+      step: 1,
+      connect: 'lower',
+    });
+  }
+  if (sliderEffectsOptions) {
+    sliderEffectsOptions.forEach((option) => {
+      if (radioEffect === option.effectName &&
+          option.effectSliderOption) {
+        sliderElement.noUiSlider.updateOptions(option.effectSliderOption);
+      }
+    });
+  }
+  sliderElement.noUiSlider.on('update', (values, handle, unencoded) => {
+    const radioEffectValue = unencoded[handle];
+    sliderInput.value = radioEffectValue;
+    scalePreview.style.filter = '';
+    if (sliderEffectsOptions) {
+      sliderEffectsOptions.forEach((option) => {
+        if (radioEffect === option.effectName) {
+          scalePreview.style.filter = option.filter(radioEffectValue);
+        }
+      });
+    }
+  });
 }
 
-function checkCommentPlace () {
-  const commentInput = document.querySelector('.text__description');
-  let status;
-
-  if (commentInput.value.length > 140) {
-    commentInput.setCustomValidity('Комментраий может быть не больше 140 символов');
-    status = false;
+function checkCommentPlace (commentInput, maxLengthComment) {
+  const commentStatus =  maxLength(commentInput.value,maxLengthComment);
+  if(commentStatus) {
+    commentInput.setCustomValidity(commentStatus);
+    commentInput.reportValidity();
+    return false;
   } else {
     commentInput.setCustomValidity('');
-    status = true;
+    commentInput.reportValidity();
+    return true;
   }
-  commentInput.reportValidity();
-
-  return status;
 }
 
-function checkHashPlace () {
-  const hashTextInput = document.querySelector('.text__hashtags');
+function checkHashPlace (hashTextInput, hashFieldOptions) {
+  if (hashTextInput.value === '') {
+    return true;
+  }
   const hashList = hashTextInput.value.split(' ');
   const hashListStatus = [];
   let status = false;
 
-  if (hashList.length === 1 || hashList[0] === '') {
-    status = true;
-  }
-
-  for(let elem = 0; elem < hashList.length; elem++) {
-    const hashText = hashList[elem];
-    hashListStatus[elem] = false;
-    const match = hashText.match(/^#[a-zA-Zа-юА-Ю0-9]{1,19}/);
-
-    if (hashText[0] === '#') {
-      if (hashText.length < 2) {
-        hashTextInput.setCustomValidity('Хэш должен состоять хотя бы из 2х символов');
-      } else if (hashText.length > 20){
-        hashTextInput.setCustomValidity('Хэш должен состоять не больше 20 символов');
-      } else if (match) {
-        const result = match[0] === match['input'] ? hashText : false;
-        if (result) {
-          hashListStatus[elem] = hashText;
-        } else {
-          hashTextInput.setCustomValidity('Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.');
-        }
-      } else {
-        hashTextInput.setCustomValidity('Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.');
-      }
-    } else {
-      hashTextInput.setCustomValidity('Первым занком хэштега должен быть знак решетки "#"');
-    }
-  }
-  if (!unique(hashListStatus)) {
+  hashList.map((hashValue, hashKey) => {
+    hashListStatus[hashKey] = !checkField(hashTextInput, hashValue, hashFieldOptions.hashOptions)? hashValue : false;
+  });
+  if (!checkRepeatArr(hashListStatus) && !hashListStatus.includes(false)) {
     hashTextInput.setCustomValidity('Хэштеги не должны повторяться');
-  } else if (hashListStatus.length > 5) {
-    hashTextInput.setCustomValidity('Пост не может содержать больше 5 хэштегов');
-  } else if (hashListStatus.includes(false) === false) {
+  } else if (hashListStatus.length > hashFieldOptions.numberHash) {
+    hashTextInput.setCustomValidity(`Пост не может содержать больше ${hashFieldOptions.numberHash} хэштегов`);
+  } else if (!hashListStatus.includes(false)) {
     hashTextInput.setCustomValidity('');
     status = true;
   }
   hashTextInput.reportValidity();
-
   return status;
 }
 
-function loadFile () {
+function loadFile (hashFieldOptions, maxLengthComment,sliderEffectsOptions) {
   const body = document.querySelector('body');
   const formChangeFile = document.querySelector('.img-upload__overlay');
   const formChangeImg = document.querySelector('.img-upload__preview img');
   const newPostFile = document.querySelector('#upload-file');
+  const scalePreview = document.querySelector('.img-upload__preview');
   const scaleButtonSmaller = document.querySelector('.scale__control--smaller');
   const scaleButtonBigger = document.querySelector('.scale__control--bigger');
   const effectsList = document.querySelector('.effects__list');
@@ -102,22 +141,30 @@ function loadFile () {
   const buttonSubmit = document.querySelector('#upload-submit');
   const closeButton = document.querySelector('#upload-cancel');
 
+  function choiceFileEffectFunction (evt) {
+    choiceFileEffect(evt, sliderEffectsOptions);
+  }
+  function checkHashPlaceFunction () {
+    return checkHashPlace(hashTextInput, hashFieldOptions);
+  }
+
+  function checkCommentPlaceFunction () {
+    return checkCommentPlace(commentInput, maxLengthComment);
+  }
+
   const closeNewPost = () => {
     formChangeFile.classList.add('hidden');
     body.classList.remove('modal-open');
+    scalePreview.style = '';
     scaleButtonSmaller.removeEventListener('click', rescaleFileSmaller, false);
     scaleButtonBigger.removeEventListener('click', rescaleFileBigger, false);
-    effectsList.removeEventListener('change', choiceFileEffect, false);
-    commentInput.removeEventListener('mouseover', () => {
-      // eslint-disable-next-line no-use-before-define
-      window.removeEventListener('keydown', closeNewPostByEsc, false);
-    });
-    commentInput.removeEventListener('mouseout', () => {
-      // eslint-disable-next-line no-use-before-define
-      window.addEventListener('keydown', closeNewPostByEsc, false);
-    });
-    commentInput.removeEventListener('input', checkCommentPlace, false);
-    hashTextInput.removeEventListener('input', checkHashPlace, false);
+    effectsList.removeEventListener('change', choiceFileEffectFunction, false);
+    // eslint-disable-next-line no-use-before-define
+    commentInput.removeEventListener('focus', removeEventCloseByEsc);
+    // eslint-disable-next-line no-use-before-define
+    commentInput.removeEventListener('blur', addEventCloseByEsc);
+    commentInput.removeEventListener('input', checkCommentPlaceFunction, false);
+    hashTextInput.removeEventListener('input', checkHashPlaceFunction, false);
 
     // eslint-disable-next-line no-use-before-define
     buttonSubmit.removeEventListener('input', checkerSubmitPost, false);
@@ -129,19 +176,22 @@ function loadFile () {
     const newPostForm = document.querySelector('.img-upload__form');
 
     evt.preventDefault();
-    if (checkHashPlace() && checkCommentPlace()) {
+    if (checkHashPlaceFunction() && checkCommentPlaceFunction()) {
       closeNewPost();
       newPostForm.submit();
     }
   }
 
-  function closeNewPostByEsc (event) {
-    if (!event) {event = window.event;}
-    event.preventDefault();
-    const keyCode = event.keyCode;
-    if (keyCode === 27) {
-      closeNewPost();
-    }
+  function closeNewPostByEsc (evt) {
+    functionByKeyDown(evt, 27, closeNewPost);
+  }
+
+  function removeEventCloseByEsc () {
+    window.removeEventListener('keydown', closeNewPostByEsc, false);
+  }
+
+  function addEventCloseByEsc () {
+    window.addEventListener('keydown', closeNewPostByEsc, false);
   }
 
   function loadFileFunction () {
@@ -154,15 +204,11 @@ function loadFile () {
         formChangeImg.src = newFileReader.result;
         scaleButtonSmaller.addEventListener('click', rescaleFileSmaller, false);
         scaleButtonBigger.addEventListener('click', rescaleFileBigger, false);
-        effectsList.addEventListener('change', choiceFileEffect, false);
-        commentInput.addEventListener('input', checkCommentPlace, false);
-        commentInput.addEventListener('mouseover', () => {
-          window.removeEventListener('keydown', closeNewPostByEsc, false);
-        });
-        commentInput.addEventListener('mouseout', () => {
-          window.addEventListener('keydown', closeNewPostByEsc, false);
-        });
-        hashTextInput.addEventListener('input', checkHashPlace, false);
+        effectsList.addEventListener('change', choiceFileEffectFunction, false);
+        commentInput.addEventListener('input', checkCommentPlaceFunction, false);
+        commentInput.addEventListener('focus', removeEventCloseByEsc, false);
+        commentInput.addEventListener('blur', addEventCloseByEsc, false);
+        hashTextInput.addEventListener('input', checkHashPlaceFunction, false);
 
         buttonSubmit.addEventListener('click', checkerSubmitPost, false);
         closeButton.addEventListener('click', closeNewPost, false);
