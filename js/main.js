@@ -1,9 +1,12 @@
 import './util.js';
+import {webRequest} from './web.js';
 import {addPost} from './picture.js';
-import {loadFile} from './form.js';
+import {newPostCreate} from './form.js';
 
 const MAX_COMMENTS_POST = 5;
 const MAX_LENGTH_COMMENT = 140;
+const LINK_SERVER_POST = 'https://23.javascript.pages.academy/kekstagram';
+const LINK_SERVER_GET = 'https://23.javascript.pages.academy/kekstagram/data';
 const avatarPostOptions = {
   height: '35',
   width: '35',
@@ -45,9 +48,6 @@ const effectsOptions = [
     filter: (value) => `brightness(${value/10 + 1})`,
   },
 ];
-
-fetch('https://23.javascript.pages.academy/kekstagram/data')
-  .then((json) => json.json())
-  .then((data) => addPost(data, avatarPostOptions, MAX_COMMENTS_POST));
-loadFile(hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions);
-
+const addPostsWeb = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
+webRequest(LINK_SERVER_GET, [addPostsWeb]);
+newPostCreate(hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions, LINK_SERVER_POST);
