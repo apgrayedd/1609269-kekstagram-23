@@ -27,6 +27,7 @@ function errorAlert (functOpenForm) {
 
   body.classList.add('modal-open');
   body.appendChild(errorHtmlElem);
+  const errorButton = document.querySelector('.error__button');
   const closeForm = () => {
     body.classList.remove('modal-open');
     document.querySelector('.error').remove();
@@ -47,6 +48,10 @@ function errorAlert (functOpenForm) {
       closeForm();
     }
   };
+  const clickInput = () => {
+    inputFile.click();
+  };
+  errorButton.addEventListener('click', clickInput);
   inputFile.addEventListener('input', functOpenFormFunction, false);
   document.addEventListener('click', closeOnAnotherForm, false);
   window.addEventListener('keydown', closeFormByEsc, false);
@@ -303,6 +308,7 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
         buttonSubmit.addEventListener('click', checkerSubmitPost, false);
         closeButton.addEventListener('click', closeNewPost, false);
         window.addEventListener('keydown', closeNewPostByEsc, false);
+        formChangeFile.scrollTo(0,0);
       }, false);
     }
   }
