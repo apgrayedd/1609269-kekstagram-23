@@ -12,96 +12,29 @@ import {
 } from './web.js';
 
 function loadFile (inputFile) {
-  if (inputFile.files[0]) {
+  const file = inputFile.files[0];
+  if (file) {
     const newFileReader = new FileReader();
-    newFileReader.readAsDataURL(inputFile.files[0]);
-    return inputFile.files[0];
+    newFileReader.readAsDataURL(file);
+    return file;
   }
 }
 
-function errorAlert (functOpenForm) {
-  const inputFile = document.querySelector('#upload-file');
-  const body = document.querySelector('body');
-  const errorTemplate = document.querySelector('#error').content.querySelector('.error');
-  const errorHtmlElem = errorTemplate.cloneNode(true);
-
-  body.classList.add('modal-open');
-  body.appendChild(errorHtmlElem);
-  const errorButton = document.querySelector('.error__button');
-  const closeForm = () => {
-    body.classList.remove('modal-open');
-    document.querySelector('.error').remove();
-    // eslint-disable-next-line no-use-before-define
-    window.removeEventListener('keydown', closeFormByEsc, false);
-    // eslint-disable-next-line no-use-before-define
-    document.removeEventListener('click', closeOnAnotherForm, false);
-  };
-  const closeFormByEsc = (evt) => {
-    functionByKeyDown(evt, 27, closeForm);
-  };
-  const functOpenFormFunction = () => {
-    closeForm();
-    functOpenForm();
-  };
-  const closeOnAnotherForm = (evt) => {
-    if (!evt.target.classList.contains('error__inner')){
-      closeForm();
-    }
-  };
-  const clickInput = () => {
-    inputFile.click();
-  };
-  errorButton.addEventListener('click', clickInput);
-  inputFile.addEventListener('input', functOpenFormFunction, false);
-  document.addEventListener('click', closeOnAnotherForm, false);
-  window.addEventListener('keydown', closeFormByEsc, false);
-}
-
-function successAlert () {
-  const body = document.querySelector('body');
-  const successTemplate = document.querySelector('#success').content.querySelector('.success');
-  const successHTMLElem = successTemplate.cloneNode(true);
-
-  body.classList.add('modal-open');
-  body.appendChild(successHTMLElem);
-  const successButton = document.querySelector('.success__button');
-  const closeForm = () => {
-    body.classList.remove('modal-open');
-    document.querySelector('.success').remove();
-    // eslint-disable-next-line no-use-before-define
-    window.removeEventListener('keydown', closeFormByEsc, false);
-    // eslint-disable-next-line no-use-before-define
-    document.removeEventListener('click', closeOnAnotherForm, false);
-  };
-  const closeFormByEsc = (evt) => {
-    functionByKeyDown(evt, 27, closeForm);
-  };
-  const closeOnAnotherForm = (evt) => {
-    if (!evt.target.classList.contains('success__inner')){
-      closeForm();
-    }
-  };
-  successButton.addEventListener('click', closeForm, false);
-  document.addEventListener('click', closeOnAnotherForm, false);
-  window.addEventListener('keydown', closeFormByEsc, false);
-}
-
-function rescaleFileBigger () {
+function rescaleChange (change, operator, maxChange) {
   const scalePreview = document.querySelector('.img-upload__preview');
   const scaleCount = document.querySelector('.scale__control--value');
-  const scaleCountValue = Number(scaleCount.value.replace('%','')) + 25;
+  let scaleCountValue = Number(scaleCount.value.replace('%','')) + change;
 
-  scaleCount.value = scaleCountValue >= 100 ? '100%' : `${scaleCountValue}%`;
-  scalePreview.style.transform = `scale(${(scaleCount.value.replace('%',''))/100})`;
-}
-
-function rescaleFileSmaller () {
-  const scalePreview = document.querySelector('.img-upload__preview');
-  const scaleCount = document.querySelector('.scale__control--value');
-  const scaleCountValue = Number(scaleCount.value.replace('%','')) - 25;
-
-  scaleCount.value = scaleCountValue <= 0 ? '0%' : `${scaleCountValue}%`;
-  scalePreview.style.transform = `scale(${(scaleCount.value.replace('%',''))/100})`;
+  switch(operator) {
+    case '<':
+      scaleCountValue = scaleCountValue <= maxChange ? maxChange : scaleCountValue;
+      break;
+    case '>':
+      scaleCountValue = scaleCountValue >= maxChange ? maxChange : scaleCountValue;
+      break;
+  }
+  scaleCount.value = `${scaleCountValue}%`;
+  scalePreview.style.transform = `scale(${scaleCountValue/100})`;
 }
 
 function checkField (fieldInput, fieldValue, hashOptions) {
@@ -203,6 +136,49 @@ function checkHashPlace (hashTextInput, hashFieldOptions) {
   return status;
 }
 
+function messageAlert (templateName, buttonOptions) {
+  const body = document.querySelector('body');
+  const template = document.querySelector(`#${templateName}`).content.querySelector(`.${templateName}`);
+  const templateHTMLElem = template.cloneNode(true);
+
+  body.classList.add('modal-open');
+  body.appendChild(templateHTMLElem);
+  const closeForm = () => {
+    body.classList.remove('modal-open');
+    document.querySelector(`.${templateName}`).remove();
+    // eslint-disable-next-line no-use-before-define
+    window.removeEventListener('keydown', closeFormByEsc, false);
+    // eslint-disable-next-line no-use-before-define
+    document.removeEventListener('click', closeOnAnotherForm, false);
+  };
+  const closeFormByEsc = (evt) => {
+    functionByKeyDown(evt, 27, closeForm);
+  };
+  const closeOnAnotherForm = (evt) => {
+    if (!evt.target.classList.contains(`${templateName}__inner`)){
+      closeForm();
+    }
+  };
+  if (buttonOptions) {
+    buttonOptions.forEach((buttonOption) => {
+      const messageForm = document.querySelector(`.${templateName}`);
+      const messageButton = messageForm.querySelector(`.${buttonOption.name}`);
+      const functionOnButton = () => {
+        if (buttonOption.function) {
+          buttonOption.function.forEach((funct) => {
+            funct(messageButton);
+          });
+        }
+        closeForm();
+        messageButton.removeEventListener('click', functionOnButton, false);
+      };
+      messageButton.addEventListener('click', functionOnButton, false);
+    });
+  }
+  document.addEventListener('click', closeOnAnotherForm, false);
+  window.addEventListener('keydown', closeFormByEsc, false);
+}
+
 function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions, linkServer) {
   const body = document.querySelector('body');
   const formNewPostCreate = document.querySelector('#upload-select-image');
@@ -222,6 +198,14 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
 
   function loadFileFunction () {
     return loadFile(newPostFile);
+  }
+
+  function rescaleFileSmaller () {
+    rescaleChange(-25,'<',0);
+  }
+
+  function rescaleFileBigger () {
+    rescaleChange(25,'>',100);
   }
 
   function choiceFileEffectFunction (evt) {
@@ -261,10 +245,14 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
     hashTextInput.value = '';
     commentInput.value = '';
   };
-
-  // eslint-disable-next-line no-use-before-define
-  const errorAlertFunction = () => errorAlert(newPostCreateFunction);
-
+  const errorAlert = () =>
+    messageAlert('error', [{
+      name: 'error__button',
+      function: [() => newPostFile.click()],
+    }]);
+  const successAlert = () => {
+    messageAlert('success', [{name:'success__button'}]);
+  };
   function checkerSubmitPost (evt) {
     evt.preventDefault();
     if (checkHashPlaceFunction() &&
@@ -272,7 +260,7 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
       webRequest(
         linkServer,
         [closeNewPost, successAlert],
-        [closeNewPost, errorAlertFunction],
+        [closeNewPost, errorAlert],
         formNewPostCreate);
     }
   }
@@ -290,9 +278,10 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
   }
 
   function newPostCreateFunction () {
-    if (loadFileFunction()) {
+    const file = loadFileFunction();
+    if (file) {
       const newFileReader = new FileReader();
-      newFileReader.readAsDataURL(this.files[0]);
+      newFileReader.readAsDataURL(file);
       newFileReader.addEventListener('load', () => {
         formChangeFile.classList.remove('hidden');
         body.classList.add('modal-open');
