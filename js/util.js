@@ -78,16 +78,21 @@ function functionByKeyDown(evt, keyCode, eventFunction) {
   }
 }
 
-function createHTMLElement(tag, classArr, addAttributesArr) {
+function createHTMLElement(tag, classArr, addAttributesObj, addStylesObj) {
   const newElement = document.createElement(tag);
   if (classArr) {
     classArr.forEach((classItem) => {
       newElement.classList.add(classItem);
     });
   }
-  if (addAttributesArr) {
-    for (const addAttributKey in addAttributesArr) {
-      newElement[addAttributKey] = addAttributesArr[addAttributKey];
+  if (addAttributesObj) {
+    for (const addAttributKey in addAttributesObj) {
+      newElement[addAttributKey] = addAttributesObj[addAttributKey];
+    }
+  }
+  if (addStylesObj) {
+    for (const styleKey in addStylesObj) {
+      newElement['style'][styleKey] = addStylesObj[styleKey];
     }
   }
   return newElement;

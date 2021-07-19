@@ -141,21 +141,24 @@ function addPostError() {
   postError.style.width = '188px';
   postError.style.height = '188px';
   postError.style.padding = '10px';
-  const postErrorImg = createHTMLElement('img');
-  postErrorImg.style.height = '130px';
-  postErrorImg.src = 'img/icon-warning.svg';
+  const postErrorImg = createHTMLElement('img', false, {
+    src: 'img/icon-warning.svg',
+  }, {
+    height: '130px',
+  });
   postError.appendChild(postErrorImg);
-  const postErrorText = createHTMLElement('p');
-  postErrorText.textContent = 'Ошибка сети';
-  postErrorText.style.width = '100%';
-  postErrorText.style.height = '10px';
-  postErrorText.style.fontFamily = 'Open Sans';
-  postErrorText.style.fontWeight = '700';
-  postErrorText.style.fontSize = '25px';
-  postErrorText.style.color = 'white';
-  postErrorText.style.top = '10px';
-  postErrorText.style.margin = '0 auto';
-  postErrorText.style.textAlign = 'center';
+  const postErrorText = createHTMLElement('p', false, {
+    textContent: 'Ошибка сети',
+  }, {
+    width: '100%',
+    height: '10px',
+    fontFamily: 'Open Sans',
+    fontWeight: '700',
+    fontSize: '25px',
+    color: 'white',
+    margin: '0 auto',
+    textAlign: 'center',
+  });
   postError.appendChild(postErrorText);
   postError.addEventListener('click', (evt) => evt.preventDefault());
   picturesPlace.appendChild(postError);
