@@ -19,6 +19,7 @@ function addComments (comments, avatarOptions, MAX_COMMENTS) {
         src: comment.avatar,
         width: avatarOptions.width,
         height: avatarOptions.height,
+        alt: comment.name,
       });
     const newCommentText = createHTMLElement(
       'p',
@@ -127,4 +128,44 @@ function addPost (postInfo,avatarOptions,MAX_COMMENTS) {
   });
   picturesPlace.appendChild(postFragment);
 }
-export {addPost,showPost};
+
+function addPostError() {
+  const picturesPlace = document.querySelector('.pictures');
+  const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
+  const postError = pictureTemplate.cloneNode(false);
+  postError.style.display = 'flex';
+  postError.style.flexDirection = 'column';
+  postError.style.justifyContent = 'space-between';
+  postError.style.background = 'gray';
+  postError.style.textDecoration = 'none';
+  postError.style.width = '188px';
+  postError.style.height = '188px';
+  postError.style.padding = '10px';
+  const postErrorImg = createHTMLElement('img', false, {
+    src: 'img/icon-warning.svg',
+  }, {
+    height: '130px',
+  });
+  postError.appendChild(postErrorImg);
+  const postErrorText = createHTMLElement('p', false, {
+    textContent: 'Ошибка сети',
+  }, {
+    width: '100%',
+    height: '10px',
+    fontFamily: 'Open Sans',
+    fontWeight: '700',
+    fontSize: '25px',
+    color: 'white',
+    margin: '0 auto',
+    textAlign: 'center',
+  });
+  postError.appendChild(postErrorText);
+  postError.addEventListener('click', (evt) => evt.preventDefault());
+  picturesPlace.appendChild(postError);
+}
+
+export {
+  addPost,
+  showPost,
+  addPostError
+};

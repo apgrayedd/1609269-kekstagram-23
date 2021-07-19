@@ -5,25 +5,30 @@ import {
   minLength,
   maxLength,
   matchValidation,
-  functionByKeyDown
+  functionByKeyDown,
+  messageAlert,
+  limitationValue
 } from './util.js';
+import {
+  webRequest
+} from './web.js';
 
-function rescaleFileBigger () {
-  const scalePreview = document.querySelector('.img-upload__preview');
-  const scaleCount = document.querySelector('.scale__control--value');
-  const scaleCountValue = Number(scaleCount.value.replace('%','')) + 25;
-
-  scaleCount.value = scaleCountValue >= 100 ? '100%' : `${scaleCountValue}%`;
-  scalePreview.style = `transform: scale(${(scaleCount.value.replace('%',''))/100})`;
+function loadFile (inputFile) {
+  const file = inputFile.files[0];
+  if (file) {
+    const newFileReader = new FileReader();
+    newFileReader.readAsDataURL(file);
+    return file;
+  }
 }
 
-function rescaleFileSmaller () {
+function rescaleChange (change) {
   const scalePreview = document.querySelector('.img-upload__preview');
   const scaleCount = document.querySelector('.scale__control--value');
-  const scaleCountValue = Number(scaleCount.value.replace('%','')) - 25;
+  const scaleCountValue = limitationValue(0,100,Number(scaleCount.value.replace('%','')) + change);
 
-  scaleCount.value = scaleCountValue <= 0 ? '0%' : `${scaleCountValue}%`;
-  scalePreview.style = `transform: scale(${(scaleCount.value.replace('%',''))/100})`;
+  scaleCount.value = `${scaleCountValue}%`;
+  scalePreview.style.transform = `scale(${scaleCountValue/100})`;
 }
 
 function checkField (fieldInput, fieldValue, hashOptions) {
@@ -47,15 +52,13 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
 
   scalePreview.classList = 'img-upload__preview';
   scalePreview.classList.add(`effects__preview--${radioEffect}`);
-  if (radioEffect === 'none') {
-    sliderElement.noUiSlider.destroy();
-    scalePreview.style.filter = '';
-    return 'Not have slider';
-  }
   if (sliderElement.noUiSlider) {
     sliderElement.noUiSlider.destroy();
   }
-
+  if (radioEffect === 'none') {
+    scalePreview.style.filter = '';
+    return 'Not have slider';
+  }
   if (sliderStandardOption) {
     noUiSlider.create(sliderElement, sliderStandardOption);
   } else {
@@ -92,19 +95,20 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
 }
 
 function checkCommentPlace (commentInput, maxLengthComment) {
+  commentInput.style = '';
   const commentStatus =  maxLength(commentInput.value,maxLengthComment);
   if(commentStatus) {
     commentInput.setCustomValidity(commentStatus);
     commentInput.reportValidity();
     return false;
-  } else {
-    commentInput.setCustomValidity('');
-    commentInput.reportValidity();
-    return true;
   }
+  commentInput.setCustomValidity('');
+  commentInput.reportValidity();
+  return true;
 }
 
 function checkHashPlace (hashTextInput, hashFieldOptions) {
+  hashTextInput.style = '';
   if (hashTextInput.value === '') {
     return true;
   }
@@ -115,7 +119,8 @@ function checkHashPlace (hashTextInput, hashFieldOptions) {
   hashList.map((hashValue, hashKey) => {
     hashListStatus[hashKey] = !checkField(hashTextInput, hashValue, hashFieldOptions.hashOptions)? hashValue : false;
   });
-  if (!checkRepeatArr(hashListStatus) && !hashListStatus.includes(false)) {
+  const toLowerHash = (hashStr) => hashStr.toLowerCase();
+  if (!checkRepeatArr(hashListStatus, toLowerHash) && !hashListStatus.includes(false)) {
     hashTextInput.setCustomValidity('Хэштеги не должны повторяться');
   } else if (hashListStatus.length > hashFieldOptions.numberHash) {
     hashTextInput.setCustomValidity(`Пост не может содержать больше ${hashFieldOptions.numberHash} хэштегов`);
@@ -127,19 +132,34 @@ function checkHashPlace (hashTextInput, hashFieldOptions) {
   return status;
 }
 
-function loadFile (hashFieldOptions, maxLengthComment,sliderEffectsOptions) {
+function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions, linkServer) {
   const body = document.querySelector('body');
+  const formNewPostCreate = document.querySelector('#upload-select-image');
   const formChangeFile = document.querySelector('.img-upload__overlay');
   const formChangeImg = document.querySelector('.img-upload__preview img');
   const newPostFile = document.querySelector('#upload-file');
   const scalePreview = document.querySelector('.img-upload__preview');
+  const scaleCount = document.querySelector('.scale__control--value');
   const scaleButtonSmaller = document.querySelector('.scale__control--smaller');
   const scaleButtonBigger = document.querySelector('.scale__control--bigger');
   const effectsList = document.querySelector('.effects__list');
+  const sliderElement = document.querySelector('.effect-level__slider');
   const hashTextInput = document.querySelector('.text__hashtags');
   const commentInput = document.querySelector('.text__description');
   const buttonSubmit = document.querySelector('#upload-submit');
   const closeButton = document.querySelector('#upload-cancel');
+
+  function loadFileFunction () {
+    return loadFile(newPostFile);
+  }
+
+  function rescaleFileSmaller () {
+    rescaleChange(-25,'<');
+  }
+
+  function rescaleFileBigger () {
+    rescaleChange(25,'>');
+  }
 
   function choiceFileEffectFunction (evt) {
     choiceFileEffect(evt, sliderEffectsOptions);
@@ -153,9 +173,6 @@ function loadFile (hashFieldOptions, maxLengthComment,sliderEffectsOptions) {
   }
 
   const closeNewPost = () => {
-    formChangeFile.classList.add('hidden');
-    body.classList.remove('modal-open');
-    scalePreview.style = '';
     scaleButtonSmaller.removeEventListener('click', rescaleFileSmaller, false);
     scaleButtonBigger.removeEventListener('click', rescaleFileBigger, false);
     effectsList.removeEventListener('change', choiceFileEffectFunction, false);
@@ -165,21 +182,52 @@ function loadFile (hashFieldOptions, maxLengthComment,sliderEffectsOptions) {
     commentInput.removeEventListener('blur', addEventCloseByEsc);
     commentInput.removeEventListener('input', checkCommentPlaceFunction, false);
     hashTextInput.removeEventListener('input', checkHashPlaceFunction, false);
-
     // eslint-disable-next-line no-use-before-define
-    buttonSubmit.removeEventListener('input', checkerSubmitPost, false);
+    hashTextInput.removeEventListener('focus', removeEventCloseByEsc, false);
+    // eslint-disable-next-line no-use-before-define
+    hashTextInput.removeEventListener('blur', addEventCloseByEsc, false);
+    // eslint-disable-next-line no-use-before-define
+    buttonSubmit.removeEventListener('click', checkerSubmitPost, false);
     // eslint-disable-next-line no-use-before-define
     window.removeEventListener('keydown', closeNewPostByEsc, false);
+
+    formChangeFile.classList.add('hidden');
+    body.classList.remove('modal-open');
+    scaleCount.value = '100%';
+    if (sliderElement.noUiSlider) {
+      sliderElement.noUiSlider.destroy();
+    }
+    scalePreview.style = '';
+    scalePreview.classList = 'img-upload__preview';
+    hashTextInput.value = '';
+    commentInput.value = '';
+  };
+  const errorAlert = () =>
+    messageAlert('error', [{
+      name: 'error__button',
+      function: [() => newPostFile.click()],
+    }]);
+  const successAlert = () => {
+    messageAlert('success', [{name:'success__button'}]);
   };
 
   function checkerSubmitPost (evt) {
-    const newPostForm = document.querySelector('.img-upload__form');
-
     evt.preventDefault();
-    if (checkHashPlaceFunction() && checkCommentPlaceFunction()) {
-      closeNewPost();
-      newPostForm.submit();
+    if (!checkHashPlaceFunction()){
+      hashTextInput.style.border = '2px solid red';
+      hashTextInput.style.outline = 'none';
+      return false;
     }
+    if (!checkCommentPlaceFunction()) {
+      commentInput.style.border = '2px solid red';
+      commentInput.style.outline = 'none';
+      return false;
+    }
+    webRequest(
+      linkServer,
+      [closeNewPost, successAlert],
+      [closeNewPost, errorAlert],
+      formNewPostCreate);
   }
 
   function closeNewPostByEsc (evt) {
@@ -194,10 +242,11 @@ function loadFile (hashFieldOptions, maxLengthComment,sliderEffectsOptions) {
     window.addEventListener('keydown', closeNewPostByEsc, false);
   }
 
-  function loadFileFunction () {
-    if (this.files[0]) {
+  function newPostCreateFunction () {
+    const file = loadFileFunction();
+    if (file) {
       const newFileReader = new FileReader();
-      newFileReader.readAsDataURL(this.files[0]);
+      newFileReader.readAsDataURL(file);
       newFileReader.addEventListener('load', () => {
         formChangeFile.classList.remove('hidden');
         body.classList.add('modal-open');
@@ -209,15 +258,18 @@ function loadFile (hashFieldOptions, maxLengthComment,sliderEffectsOptions) {
         commentInput.addEventListener('focus', removeEventCloseByEsc, false);
         commentInput.addEventListener('blur', addEventCloseByEsc, false);
         hashTextInput.addEventListener('input', checkHashPlaceFunction, false);
+        hashTextInput.addEventListener('focus', removeEventCloseByEsc, false);
+        hashTextInput.addEventListener('blur', addEventCloseByEsc, false);
 
         buttonSubmit.addEventListener('click', checkerSubmitPost, false);
         closeButton.addEventListener('click', closeNewPost, false);
         window.addEventListener('keydown', closeNewPostByEsc, false);
+        formChangeFile.scrollTo(0,0);
       }, false);
     }
   }
 
-  newPostFile.addEventListener('input', loadFileFunction, false);
+  newPostFile.addEventListener('input', newPostCreateFunction, false);
 }
 
-export {loadFile};
+export {newPostCreate};

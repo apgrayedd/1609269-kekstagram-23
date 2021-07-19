@@ -9,10 +9,13 @@ function mixArray (items = []) {
   return mixedArray;
 }
 
-function checkRepeatArr(arr) {
+function checkRepeatArr(arr, variableProcessing ) {
   const result = [];
 
-  for (const str of arr) {
+  for (let str of arr) {
+    if (variableProcessing && typeof(str) === 'string') {
+      str = variableProcessing(str);
+    }
     if (result.includes(str)) {
       return false;
     } else {
@@ -75,19 +78,73 @@ function functionByKeyDown(evt, keyCode, eventFunction) {
   }
 }
 
-function createHTMLElement(tag, classArr, addAttributesArr) {
+function createHTMLElement(tag, classArr, addAttributesObj, addStylesObj) {
   const newElement = document.createElement(tag);
   if (classArr) {
     classArr.forEach((classItem) => {
       newElement.classList.add(classItem);
     });
   }
-  if (addAttributesArr) {
-    for (const addAttributKey in addAttributesArr) {
-      newElement[addAttributKey] = addAttributesArr[addAttributKey];
+  if (addAttributesObj) {
+    for (const addAttributKey in addAttributesObj) {
+      newElement[addAttributKey] = addAttributesObj[addAttributKey];
+    }
+  }
+  if (addStylesObj) {
+    for (const styleKey in addStylesObj) {
+      newElement['style'][styleKey] = addStylesObj[styleKey];
     }
   }
   return newElement;
+}
+
+function messageAlert (templateName, buttonOptions) {
+  const body = document.querySelector('body');
+  const template = document.querySelector(`#${templateName}`).content.querySelector(`.${templateName}`);
+  const templateHTMLElem = template.cloneNode(true);
+
+  body.classList.add('modal-open');
+  body.appendChild(templateHTMLElem);
+  const closeForm = () => {
+    body.classList.remove('modal-open');
+    document.querySelector(`.${templateName}`).remove();
+    // eslint-disable-next-line no-use-before-define
+    window.removeEventListener('keydown', closeFormByEsc, false);
+    // eslint-disable-next-line no-use-before-define
+    document.removeEventListener('click', closeOnAnotherForm, false);
+  };
+  const closeFormByEsc = (evt) => {
+    functionByKeyDown(evt, 27, closeForm);
+  };
+  const closeOnAnotherForm = (evt) => {
+    if (!evt.target.classList.contains(`${templateName}__inner`)){
+      closeForm();
+    }
+  };
+  if (buttonOptions) {
+    buttonOptions.forEach((buttonOption) => {
+      const messageForm = document.querySelector(`.${templateName}`);
+      const messageButton = messageForm.querySelector(`.${buttonOption.name}`);
+      const functionOnButton = () => {
+        if (buttonOption.function) {
+          buttonOption.function.forEach((funct) => {
+            funct(messageButton);
+          });
+        }
+        closeForm();
+        messageButton.removeEventListener('click', functionOnButton, false);
+      };
+      messageButton.addEventListener('click', functionOnButton, false);
+    });
+  }
+  document.addEventListener('click', closeOnAnotherForm, false);
+  window.addEventListener('keydown', closeFormByEsc, false);
+}
+
+
+function limitationValue(min, max, value) {
+  const lowerLimit = Math.max(value, min) === min ? min : value;
+  return Math.min(lowerLimit, max) === max ? max : lowerLimit;
 }
 
 export {
@@ -100,5 +157,7 @@ export {
   maxLength,
   matchValidation,
   functionByKeyDown,
-  createHTMLElement
+  createHTMLElement,
+  messageAlert,
+  limitationValue
 };
