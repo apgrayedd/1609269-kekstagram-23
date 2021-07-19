@@ -6,7 +6,7 @@ import {newPostCreate} from './form.js';
 const MAX_COMMENTS_POST = 5;
 const MAX_LENGTH_COMMENT = 140;
 const LINK_SERVER_POST = 'https://23.javascript.pages.academy/kekstagram';
-const LINK_SERVER_GET = 'https://23.javascript.pages.academy/kekstagram/data1';
+const LINK_SERVER_GET = 'https://23.javascript.pages.academy/kekstagram/data';
 const avatarPostOptions = {
   height: '35',
   width: '35',
