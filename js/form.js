@@ -5,7 +5,9 @@ import {
   minLength,
   maxLength,
   matchValidation,
-  functionByKeyDown
+  functionByKeyDown,
+  messageAlert,
+  limitationValue
 } from './util.js';
 import {
   webRequest
@@ -20,19 +22,11 @@ function loadFile (inputFile) {
   }
 }
 
-function rescaleChange (change, operator, maxChange) {
+function rescaleChange (change) {
   const scalePreview = document.querySelector('.img-upload__preview');
   const scaleCount = document.querySelector('.scale__control--value');
-  let scaleCountValue = Number(scaleCount.value.replace('%','')) + change;
+  const scaleCountValue = limitationValue(0,100,Number(scaleCount.value.replace('%','')) + change);
 
-  switch(operator) {
-    case '<':
-      scaleCountValue = scaleCountValue <= maxChange ? maxChange : scaleCountValue;
-      break;
-    case '>':
-      scaleCountValue = scaleCountValue >= maxChange ? maxChange : scaleCountValue;
-      break;
-  }
   scaleCount.value = `${scaleCountValue}%`;
   scalePreview.style.transform = `scale(${scaleCountValue/100})`;
 }
@@ -101,19 +95,20 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
 }
 
 function checkCommentPlace (commentInput, maxLengthComment) {
+  commentInput.style = '';
   const commentStatus =  maxLength(commentInput.value,maxLengthComment);
   if(commentStatus) {
     commentInput.setCustomValidity(commentStatus);
     commentInput.reportValidity();
     return false;
-  } else {
-    commentInput.setCustomValidity('');
-    commentInput.reportValidity();
-    return true;
   }
+  commentInput.setCustomValidity('');
+  commentInput.reportValidity();
+  return true;
 }
 
 function checkHashPlace (hashTextInput, hashFieldOptions) {
+  hashTextInput.style = '';
   if (hashTextInput.value === '') {
     return true;
   }
@@ -124,7 +119,8 @@ function checkHashPlace (hashTextInput, hashFieldOptions) {
   hashList.map((hashValue, hashKey) => {
     hashListStatus[hashKey] = !checkField(hashTextInput, hashValue, hashFieldOptions.hashOptions)? hashValue : false;
   });
-  if (!checkRepeatArr(hashListStatus) && !hashListStatus.includes(false)) {
+  const toLowerHash = (hashStr) => hashStr.toLowerCase();
+  if (!checkRepeatArr(hashListStatus, toLowerHash) && !hashListStatus.includes(false)) {
     hashTextInput.setCustomValidity('Хэштеги не должны повторяться');
   } else if (hashListStatus.length > hashFieldOptions.numberHash) {
     hashTextInput.setCustomValidity(`Пост не может содержать больше ${hashFieldOptions.numberHash} хэштегов`);
@@ -134,49 +130,6 @@ function checkHashPlace (hashTextInput, hashFieldOptions) {
   }
   hashTextInput.reportValidity();
   return status;
-}
-
-function messageAlert (templateName, buttonOptions) {
-  const body = document.querySelector('body');
-  const template = document.querySelector(`#${templateName}`).content.querySelector(`.${templateName}`);
-  const templateHTMLElem = template.cloneNode(true);
-
-  body.classList.add('modal-open');
-  body.appendChild(templateHTMLElem);
-  const closeForm = () => {
-    body.classList.remove('modal-open');
-    document.querySelector(`.${templateName}`).remove();
-    // eslint-disable-next-line no-use-before-define
-    window.removeEventListener('keydown', closeFormByEsc, false);
-    // eslint-disable-next-line no-use-before-define
-    document.removeEventListener('click', closeOnAnotherForm, false);
-  };
-  const closeFormByEsc = (evt) => {
-    functionByKeyDown(evt, 27, closeForm);
-  };
-  const closeOnAnotherForm = (evt) => {
-    if (!evt.target.classList.contains(`${templateName}__inner`)){
-      closeForm();
-    }
-  };
-  if (buttonOptions) {
-    buttonOptions.forEach((buttonOption) => {
-      const messageForm = document.querySelector(`.${templateName}`);
-      const messageButton = messageForm.querySelector(`.${buttonOption.name}`);
-      const functionOnButton = () => {
-        if (buttonOption.function) {
-          buttonOption.function.forEach((funct) => {
-            funct(messageButton);
-          });
-        }
-        closeForm();
-        messageButton.removeEventListener('click', functionOnButton, false);
-      };
-      messageButton.addEventListener('click', functionOnButton, false);
-    });
-  }
-  document.addEventListener('click', closeOnAnotherForm, false);
-  window.addEventListener('keydown', closeFormByEsc, false);
 }
 
 function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions, linkServer) {
@@ -201,11 +154,11 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
   }
 
   function rescaleFileSmaller () {
-    rescaleChange(-25,'<',0);
+    rescaleChange(-25,'<');
   }
 
   function rescaleFileBigger () {
-    rescaleChange(25,'>',100);
+    rescaleChange(25,'>');
   }
 
   function choiceFileEffectFunction (evt) {
@@ -230,7 +183,11 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
     commentInput.removeEventListener('input', checkCommentPlaceFunction, false);
     hashTextInput.removeEventListener('input', checkHashPlaceFunction, false);
     // eslint-disable-next-line no-use-before-define
-    buttonSubmit.removeEventListener('input', checkerSubmitPost, false);
+    hashTextInput.removeEventListener('focus', removeEventCloseByEsc, false);
+    // eslint-disable-next-line no-use-before-define
+    hashTextInput.removeEventListener('blur', addEventCloseByEsc, false);
+    // eslint-disable-next-line no-use-before-define
+    buttonSubmit.removeEventListener('click', checkerSubmitPost, false);
     // eslint-disable-next-line no-use-before-define
     window.removeEventListener('keydown', closeNewPostByEsc, false);
 
@@ -253,16 +210,24 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
   const successAlert = () => {
     messageAlert('success', [{name:'success__button'}]);
   };
+
   function checkerSubmitPost (evt) {
     evt.preventDefault();
-    if (checkHashPlaceFunction() &&
-        checkCommentPlaceFunction()){
-      webRequest(
-        linkServer,
-        [closeNewPost, successAlert],
-        [closeNewPost, errorAlert],
-        formNewPostCreate);
+    if (!checkHashPlaceFunction()){
+      hashTextInput.style.border = '2px solid red';
+      hashTextInput.style.outline = 'none';
+      return false;
     }
+    if (!checkCommentPlaceFunction()) {
+      commentInput.style.border = '2px solid red';
+      commentInput.style.outline = 'none';
+      return false;
+    }
+    webRequest(
+      linkServer,
+      [closeNewPost, successAlert],
+      [closeNewPost, errorAlert],
+      formNewPostCreate);
   }
 
   function closeNewPostByEsc (evt) {
@@ -293,6 +258,8 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
         commentInput.addEventListener('focus', removeEventCloseByEsc, false);
         commentInput.addEventListener('blur', addEventCloseByEsc, false);
         hashTextInput.addEventListener('input', checkHashPlaceFunction, false);
+        hashTextInput.addEventListener('focus', removeEventCloseByEsc, false);
+        hashTextInput.addEventListener('blur', addEventCloseByEsc, false);
 
         buttonSubmit.addEventListener('click', checkerSubmitPost, false);
         closeButton.addEventListener('click', closeNewPost, false);
