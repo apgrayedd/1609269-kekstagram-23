@@ -52,10 +52,6 @@ const addPostsWeb = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COM
 webRequest(LINK_SERVER_GET, [addPostsWeb], [addPostError]);
 newPostCreate(hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions, LINK_SERVER_POST);
 /*
-4.2. Если при загрузке данных с сервера произошла ошибка запроса,
-нужно показать соответствующее сообщение. Дизайн блока с сообщением
-нужно придумать самостоятельно.
-
 5.1. Доступные фильтры:
 «По умолчанию» — фотографии в изначальном порядке с сервера;
 «Случайные» — 10 случайных, не повторяющихся фотографий;
