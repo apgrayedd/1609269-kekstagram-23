@@ -154,11 +154,11 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
   }
 
   function rescaleFileSmaller () {
-    rescaleChange(-25,'<');
+    rescaleChange(-25);
   }
 
   function rescaleFileBigger () {
-    rescaleChange(25,'>');
+    rescaleChange(25);
   }
 
   function choiceFileEffectFunction (evt) {
@@ -228,6 +228,7 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
       [closeNewPost, successAlert],
       [closeNewPost, errorAlert],
       formNewPostCreate);
+    return true;
   }
 
   function closeNewPostByEsc (evt) {

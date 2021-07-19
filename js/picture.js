@@ -1,4 +1,7 @@
-import {createHTMLElement} from './util.js';
+import {
+  createHTMLElement,
+  addStyles
+} from './util.js';
 
 function addComments (comments, avatarOptions, MAX_COMMENTS) {
   const social = document.querySelector('.social__comments');
@@ -133,20 +136,21 @@ function addPostError() {
   const picturesPlace = document.querySelector('.pictures');
   const pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
   const postError = pictureTemplate.cloneNode(false);
-  postError.style.display = 'flex';
-  postError.style.flexDirection = 'column';
-  postError.style.justifyContent = 'space-between';
-  postError.style.background = 'gray';
-  postError.style.textDecoration = 'none';
-  postError.style.width = '188px';
-  postError.style.height = '188px';
-  postError.style.padding = '10px';
+  addStyles(postError, {
+    display:'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    background: 'gray',
+    textDecoration: 'none',
+    width: '188px',
+    height: '188px',
+    padding: '10px',
+  });
   const postErrorImg = createHTMLElement('img', false, {
     src: 'img/icon-warning.svg',
   }, {
     height: '130px',
   });
-  postError.appendChild(postErrorImg);
   const postErrorText = createHTMLElement('p', false, {
     textContent: 'Ошибка сети',
   }, {
@@ -159,6 +163,7 @@ function addPostError() {
     margin: '0 auto',
     textAlign: 'center',
   });
+  postError.appendChild(postErrorImg);
   postError.appendChild(postErrorText);
   postError.addEventListener('click', (evt) => evt.preventDefault());
   picturesPlace.appendChild(postError);

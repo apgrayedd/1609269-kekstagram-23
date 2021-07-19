@@ -1,4 +1,9 @@
 import './util.js';
+import {
+  addfilterOptions,
+  filterByRandom,
+  filterByComments
+} from './filter.js';
 import {webRequest} from './web.js';
 import {addPost, addPostError} from './picture.js';
 import {newPostCreate} from './form.js';
@@ -48,8 +53,29 @@ const effectsOptions = [
     filter: (value) => `brightness(${value/10 + 1})`,
   },
 ];
+const clearPosts = () => {
+  const posts = document.querySelectorAll('.picture');
+  posts.forEach((post) => {
+    post.remove();
+  });
+};
 const addPostsWeb = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
-webRequest(LINK_SERVER_GET, [addPostsWeb], [addPostError]);
+webRequest(LINK_SERVER_GET, [addPostsWeb], [addPostError]).then((result) => {
+  addfilterOptions();
+  const filterRandomButton = document.querySelector('#filter-random');
+  const filterDiscussedButton = document.querySelector('#filter-discussed');
+  const filterRadndomFunction = () => {
+    clearPosts();
+    addPost(filterByRandom(result, 10), avatarPostOptions, MAX_COMMENTS_POST);
+  };
+  const filterDiscussedFunction = () => {
+    clearPosts();
+    addPost(filterByComments(result), avatarPostOptions, MAX_COMMENTS_POST);
+  };
+
+  filterRandomButton.addEventListener('click', filterRadndomFunction, false);
+  filterDiscussedButton.addEventListener('click', filterDiscussedFunction, false);
+});
 newPostCreate(hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions, LINK_SERVER_POST);
 /*
 5.1. Доступные фильтры:

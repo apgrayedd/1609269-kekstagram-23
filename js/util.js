@@ -60,11 +60,11 @@ function matchValidation (fieldValue) {
   const match = fieldValue.match(/[a-zA-Zа-юА-Ю0-9]*/);
 
   if (!match) {
-    return 'Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.';
+    return 'Поле не должно содержать #, @, $ и т. п.';
   }
   const result = match[0] === match['input'] ? fieldValue : false;
   if (!result) {
-    return 'Хэш должен быть типа #ХэшТэг и не содержать #, @, $ и т. п.';
+    return 'Поле не должно содержать #, @, $ и т. п.';
   }
 }
 
@@ -96,6 +96,12 @@ function createHTMLElement(tag, classArr, addAttributesObj, addStylesObj) {
     }
   }
   return newElement;
+}
+
+function addStyles (HTMLElement, stylesObj) {
+  for (const style in stylesObj) {
+    HTMLElement['style'][style] = stylesObj[style];
+  }
 }
 
 function messageAlert (templateName, buttonOptions) {
@@ -159,5 +165,6 @@ export {
   functionByKeyDown,
   createHTMLElement,
   messageAlert,
-  limitationValue
+  limitationValue,
+  addStyles
 };

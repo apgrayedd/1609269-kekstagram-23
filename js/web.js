@@ -6,7 +6,7 @@ function webRequest (
   dataRequest,
 ) {
   const fetchOption = dataRequest ? {method: 'POST',body: new FormData(dataRequest)} : {method: 'GET'};
-  fetch(linkServerData, fetchOption)
+  return fetch(linkServerData, fetchOption)
     .then((json) => {
       if (json.ok) {
         return json.json();
@@ -19,6 +19,7 @@ function webRequest (
           functionOnSuccess(result);
         });
       }
+      return result;
     })
     .catch((err) => {
       if (onErrorArr) {
@@ -26,6 +27,7 @@ function webRequest (
           functionOnError(err);
         });
       }
+      return false;
     });
 }
 
