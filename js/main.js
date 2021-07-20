@@ -1,13 +1,10 @@
 import './util.js';
-import {
-  addfilterOptions,
-  filterByRandom,
-  filterByComments
-} from './filter.js';
+import {postsFilter} from './filter.js';
 import {webRequest} from './web.js';
 import {addPost, addPostError} from './picture.js';
 import {newPostCreate} from './form.js';
 
+const MAX_NUMBER_FOR_RANDOM_FILTER = 10;
 const MAX_COMMENTS_POST = 5;
 const MAX_LENGTH_COMMENT = 140;
 const LINK_SERVER_POST = 'https://23.javascript.pages.academy/kekstagram';
@@ -53,28 +50,10 @@ const effectsOptions = [
     filter: (value) => `brightness(${value/10 + 1})`,
   },
 ];
-const clearPosts = () => {
-  const posts = document.querySelectorAll('.picture');
-  posts.forEach((post) => {
-    post.remove();
-  });
-};
-const addPostsWeb = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
-webRequest(LINK_SERVER_GET, [addPostsWeb], [addPostError]).then((result) => {
-  addfilterOptions();
-  const filterRandomButton = document.querySelector('#filter-random');
-  const filterDiscussedButton = document.querySelector('#filter-discussed');
-  const filterRadndomFunction = () => {
-    clearPosts();
-    addPost(filterByRandom(result, 10), avatarPostOptions, MAX_COMMENTS_POST);
-  };
-  const filterDiscussedFunction = () => {
-    clearPosts();
-    addPost(filterByComments(result), avatarPostOptions, MAX_COMMENTS_POST);
-  };
 
-  filterRandomButton.addEventListener('click', filterRadndomFunction, false);
-  filterDiscussedButton.addEventListener('click', filterDiscussedFunction, false);
+const addPostsFunction = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
+webRequest(LINK_SERVER_GET, [addPostsFunction], [addPostError]).then((result) => {
+  postsFilter(result, addPostsFunction, MAX_NUMBER_FOR_RANDOM_FILTER);
 });
 newPostCreate(hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions, LINK_SERVER_POST);
 /*
