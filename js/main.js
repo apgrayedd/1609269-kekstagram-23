@@ -1,31 +1,67 @@
-import {getRandomPost} from './data.js';
-import {getRandomNumber, checkCommentError, mixArray} from './util.js';
-import {addPost} from './picture.js';
-import {loadFile} from './form.js';
+import './util.js';
+import {postsFilter} from './filter.js';
+import {webRequest} from './web.js';
+import {addPost, addPostError} from './picture.js';
+import {newPostCreate} from './form.js';
 
-const MAX_LENGTH_COMMENT = 10;
-const NUMBER_OF_POSTS_AND_PHOTO = getRandomNumber(1,25);
-const MAX_OF_COMMENTS = 6;
-const MAX_COMMENTS = 2;
-
-const likes = {
-  min: 15,
-  max: 200,
+const MAX_NUMBER_FOR_RANDOM_FILTER = 10;
+const MAX_COMMENTS_POST = 5;
+const MAX_LENGTH_COMMENT = 140;
+const LINK_SERVER_POST = 'https://23.javascript.pages.academy/kekstagram';
+const LINK_SERVER_GET = 'https://23.javascript.pages.academy/kekstagram/data';
+const avatarPostOptions = {
+  height: '35',
+  width: '35',
 };
-const someComments = [
-  'Всё отлично!',
-  'В целом всё неплохо. Но не всё.',
-  'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
-  'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.',
-  'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
-  'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!',
+const hashFieldOptions = {
+  hashOptions: {
+    firstSymbol: '#',
+    min: 2,
+    max: 20,
+  },
+  numberHash: 5,
+};
+
+const effectsOptions = [
+  {
+    effectName : 'none',
+    effectSliderOption : {range: {min: 0,max: 100},start: 100, step: 1, connect: 'lower'},
+  },
+  {
+    effectName : 'chrome',
+    filter: (value) => `grayscale(${value/100})`,
+  },
+  {
+    effectName : 'sepia',
+    filter: (value) => `sepia(${value/100})`,
+  },
+  {
+    effectName : 'marvin',
+    filter: (value) => `invert(${value}%)`,
+  },
+  {
+    effectName : 'phobos',
+    effectSliderOption : {range: {min: 0,max: 30},start: 30},
+    filter: (value) => `blur(${value/10}px)`,
+  },
+  {
+    effectName : 'heat',
+    effectSliderOption : {range: {min: 0,max: 20},start: 20},
+    filter: (value) => `brightness(${value/10 + 1})`,
+  },
 ];
-const someNames = [
-  'Артем','Владимир','Александр','Виталик','Алексей','Дмитрий',
-];
-const someIdPosts = mixArray(new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => key + 1));
-const someIdPhotos = mixArray(new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => key + 1));
-const posts = new Array(NUMBER_OF_POSTS_AND_PHOTO).fill().map((elem,key) => getRandomPost(someIdPosts[key],someIdPhotos[key],someComments,someNames,likes,MAX_OF_COMMENTS));
-addPost(posts,MAX_COMMENTS);
-checkCommentError(posts[0]['comments'][0]['message'],MAX_LENGTH_COMMENT);
-loadFile();
+
+const addPostsFunction = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
+webRequest(LINK_SERVER_GET, [addPostsFunction], [addPostError]).then((result) => {
+  postsFilter(result, addPostsFunction, MAX_NUMBER_FOR_RANDOM_FILTER);
+});
+newPostCreate(hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions, LINK_SERVER_POST);
+/*
+5.1. Доступные фильтры:
+«По умолчанию» — фотографии в изначальном порядке с сервера;
+«Случайные» — 10 случайных, не повторяющихся фотографий;
+«Обсуждаемые» — фотографии, отсортированные в порядке убывания количества комментариев.
+5.2. Блок, с помощью которого производится фильтрация фотографий,
+скрыт изначально и показывается только после окончания загрузки всех фотографий.
+5.3. При переключении фильтров, отрисовка изображений, подходящих
+ под новый фильтр, должна производиться не чаще, чем один раз 500 мс (устранение дребезга).*/
