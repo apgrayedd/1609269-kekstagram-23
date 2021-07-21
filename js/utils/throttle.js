@@ -10,12 +10,12 @@ function throttle (callback, delayBetweenFrames) {
     // Получаем текущую дату в миллисекундах,
     // чтобы можно было в дальнейшем
     // вычислять разницу между кадрами
-    const now = new Date();
+    let now = new Date();
     // Если время между кадрами больше задержки,
     // вызываем наш колбэк и перезаписываем lastTime
     // временем "последнего кадра"
     if (now - lastTime >= delayBetweenFrames) {
-      callback.apply(this, rest);
+      callback.apply(this, rest)
       lastTime = now;
     }
   };
