@@ -88,7 +88,7 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
   function closePostByKeyPress (evt) {
     const keyCode = evt.keyCode;
     if (keyCode === ESC_KEY_CODE) {
-      event.preventDefault();
+      evt.preventDefault();
       closePost();
     }
   }
