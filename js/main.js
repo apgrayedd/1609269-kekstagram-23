@@ -3,8 +3,10 @@ import {postsFilter} from './filter.js';
 import {webRequest} from './web.js';
 import {addPost, addPostError} from './picture.js';
 import {newPostCreate} from './form.js';
+import {debounce} from './utils/debounce.js';
 
 const MAX_NUMBER_FOR_RANDOM_FILTER = 10;
+const RERENDER_DELAY = 100;
 const MAX_COMMENTS_POST = 5;
 const MAX_LENGTH_COMMENT = 140;
 const LINK_SERVER_POST = 'https://23.javascript.pages.academy/kekstagram';
@@ -53,15 +55,10 @@ const effectsOptions = [
 
 const addPostsFunction = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
 webRequest(LINK_SERVER_GET, [addPostsFunction], [addPostError]).then((result) => {
-  postsFilter(result, addPostsFunction, MAX_NUMBER_FOR_RANDOM_FILTER);
+  const addPostWithDebounce = _.debounce(addPostsFunction,RERENDER_DELAY);
+  postsFilter(result, addPostWithDebounce, MAX_NUMBER_FOR_RANDOM_FILTER);
 });
 newPostCreate(hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions, LINK_SERVER_POST);
 /*
-5.1. Доступные фильтры:
-«По умолчанию» — фотографии в изначальном порядке с сервера;
-«Случайные» — 10 случайных, не повторяющихся фотографий;
-«Обсуждаемые» — фотографии, отсортированные в порядке убывания количества комментариев.
-5.2. Блок, с помощью которого производится фильтрация фотографий,
-скрыт изначально и показывается только после окончания загрузки всех фотографий.
 5.3. При переключении фильтров, отрисовка изображений, подходящих
  под новый фильтр, должна производиться не чаще, чем один раз 500 мс (устранение дребезга).*/
