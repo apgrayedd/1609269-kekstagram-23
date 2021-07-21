@@ -54,6 +54,7 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
   const buttonLike = document.querySelector('.likes-count');
   const buttonLoader = document.querySelector('.comments-loader');
   const cancel = document.querySelector('#picture-cancel');
+  const ESC_KEY_CODE = 27;
   let maxComments = MAX_COMMENTS;
 
   function clickLikeFunction (evt) {
@@ -84,10 +85,9 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
     body.classList.remove('modal-open');
   };
 
-  function closePostByKeyPress (event) {
-    if (!event) {event = window.event;}
-    const keyCode = event.keyCode;
-    if (keyCode === 27) {
+  function closePostByKeyPress (evt) {
+    const keyCode = evt.keyCode;
+    if (keyCode === ESC_KEY_CODE) {
       event.preventDefault();
       closePost();
     }

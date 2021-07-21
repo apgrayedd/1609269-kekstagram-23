@@ -16,6 +16,7 @@ function checkRepeatArr(arr, variableProcessing ) {
     if (variableProcessing && typeof(str) === 'string') {
       str = variableProcessing(str);
     }
+
     if (result.includes(str)) {
       return false;
     } else {
@@ -62,6 +63,7 @@ function matchValidation (fieldValue) {
   if (!match) {
     return 'Поле не должно содержать #, @, $ и т. п.';
   }
+
   const result = match[0] === match['input'] ? fieldValue : false;
   if (!result) {
     return 'Поле не должно содержать #, @, $ и т. п.';
@@ -85,11 +87,13 @@ function createHTMLElement(tag, classArr, addAttributesObj, addStylesObj) {
       newElement.classList.add(classItem);
     });
   }
+
   if (addAttributesObj) {
-    for (const addAttributKey in addAttributesObj) {
-      newElement[addAttributKey] = addAttributesObj[addAttributKey];
+    for (const addAttributeKey in addAttributesObj) {
+      newElement[addAttributeKey] = addAttributesObj[addAttributeKey];
     }
   }
+
   if (addStylesObj) {
     for (const styleKey in addStylesObj) {
       newElement['style'][styleKey] = addStylesObj[styleKey];
@@ -149,8 +153,7 @@ function messageAlert (templateName, buttonOptions) {
 
 
 function limitationValue(min, max, value) {
-  const lowerLimit = Math.max(value, min) === min ? min : value;
-  return Math.min(lowerLimit, max) === max ? max : lowerLimit;
+  return Math.min(Math.max(value, min), max);
 }
 
 export {

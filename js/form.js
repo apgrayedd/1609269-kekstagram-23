@@ -7,7 +7,8 @@ import {
   matchValidation,
   functionByKeyDown,
   messageAlert,
-  limitationValue
+  limitationValue,
+  addStyles
 } from './util.js';
 import {
   webRequest
@@ -25,10 +26,11 @@ function loadFile (inputFile) {
 function rescaleChange (change) {
   const scalePreview = document.querySelector('.img-upload__preview');
   const scaleCount = document.querySelector('.scale__control--value');
-  const scaleCountValue = limitationValue(0,100,Number(scaleCount.value.replace('%','')) + change);
+  const rescaledCount = Number(scaleCount.value.replace('%','')) + change;
+  const rescaledInFrame = limitationValue(0,100,rescaledCount);
 
-  scaleCount.value = `${scaleCountValue}%`;
-  scalePreview.style.transform = `scale(${scaleCountValue/100})`;
+  scaleCount.value = `${rescaledInFrame}%`;
+  scalePreview.style.transform = `scale(${rescaledInFrame/100})`;
 }
 
 function checkField (fieldInput, fieldValue, hashOptions) {
@@ -55,10 +57,12 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
   if (sliderElement.noUiSlider) {
     sliderElement.noUiSlider.destroy();
   }
+
   if (radioEffect === 'none') {
     scalePreview.style.filter = '';
     return 'Not have slider';
   }
+
   if (sliderStandardOption) {
     noUiSlider.create(sliderElement, sliderStandardOption);
   } else {
@@ -72,6 +76,7 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
       connect: 'lower',
     });
   }
+
   if (sliderEffectsOptions) {
     sliderEffectsOptions.forEach((option) => {
       if (radioEffect === option.effectName &&
@@ -80,6 +85,7 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
       }
     });
   }
+
   sliderElement.noUiSlider.on('update', (values, handle, unencoded) => {
     const radioEffectValue = unencoded[handle];
     sliderInput.value = radioEffectValue;
@@ -132,7 +138,7 @@ function checkHashPlace (hashTextInput, hashFieldOptions) {
   return status;
 }
 
-function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions, linkServer) {
+function newPostCreate (rescaleChangeValue, hashFieldOptions, maxLengthComment,sliderEffectsOptions, linkServer) {
   const body = document.querySelector('body');
   const formNewPostCreate = document.querySelector('#upload-select-image');
   const formChangeFile = document.querySelector('.img-upload__overlay');
@@ -148,17 +154,18 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
   const commentInput = document.querySelector('.text__description');
   const buttonSubmit = document.querySelector('#upload-submit');
   const closeButton = document.querySelector('#upload-cancel');
+  const ESC_KEY_CODE = 27;
 
   function loadFileFunction () {
     return loadFile(newPostFile);
   }
 
   function rescaleFileSmaller () {
-    rescaleChange(-25);
+    rescaleChange(-(rescaleChangeValue));
   }
 
   function rescaleFileBigger () {
-    rescaleChange(25);
+    rescaleChange(rescaleChangeValue);
   }
 
   function choiceFileEffectFunction (evt) {
@@ -214,13 +221,18 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
   function checkerSubmitPost (evt) {
     evt.preventDefault();
     if (!checkHashPlaceFunction()){
-      hashTextInput.style.border = '2px solid red';
-      hashTextInput.style.outline = 'none';
+      addStyles(hashTextInput, {
+        border: '2px solid red',
+        outline: 'none',
+      });
       return false;
     }
+
     if (!checkCommentPlaceFunction()) {
-      commentInput.style.border = '2px solid red';
-      commentInput.style.outline = 'none';
+      addStyles(commentInput, {
+        border: '2px solid red',
+        outline: 'none',
+      });
       return false;
     }
     webRequest(
@@ -232,7 +244,7 @@ function newPostCreate (hashFieldOptions, maxLengthComment,sliderEffectsOptions,
   }
 
   function closeNewPostByEsc (evt) {
-    functionByKeyDown(evt, 27, closeNewPost);
+    functionByKeyDown(evt, ESC_KEY_CODE, closeNewPost);
   }
 
   function removeEventCloseByEsc () {

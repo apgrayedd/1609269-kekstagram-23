@@ -1,6 +1,6 @@
 import {mixArray} from './util.js';
 
-function addfilterOptions () {
+function addFilterOptions () {
   const filtersSection = document.querySelector('.img-filters');
   filtersSection.classList.remove('img-filters--inactive');
 }
@@ -9,8 +9,8 @@ function filterDefault(postsArr) {
   return postsArr;
 }
 
-function filterByRandom(postsArr, numberRandpmPosts) {
-  return mixArray(postsArr).slice(0,numberRandpmPosts);
+function filterByRandom(postsArr, numberRandomPosts) {
+  return mixArray(postsArr).slice(0,numberRandomPosts);
 }
 
 function filterByComments(postsArr) {
@@ -42,13 +42,13 @@ function postsFilter (posts, addPostsFunction, maxNumberForRandomFilter) {
     addPostsFunction(filterFunct(posts, adds));
     filter.classList.add('img-filters__button--active');
   };
-  const filterDefaultFuncion = () => filterFunction(filterDefaultButton,filterDefault);
-  const filterRadndomFunction = () => filterFunction(filterRandomButton,filterByRandom,maxNumberForRandomFilter);
+  const filterDefaultFunction = () => filterFunction(filterDefaultButton,filterDefault);
+  const filterRandomFunction = () => filterFunction(filterRandomButton,filterByRandom,maxNumberForRandomFilter);
   const filterDiscussedFunction = () => filterFunction(filterDiscussedButton,filterByComments);
 
-  addfilterOptions();
-  filterDefaultButton.addEventListener('click', filterDefaultFuncion, false);
-  filterRandomButton.addEventListener('click', filterRadndomFunction, false);
+  addFilterOptions();
+  filterDefaultButton.addEventListener('click', filterDefaultFunction, false);
+  filterRandomButton.addEventListener('click', filterRandomFunction, false);
   filterDiscussedButton.addEventListener('click', filterDiscussedFunction, false);
 }
 
@@ -56,6 +56,6 @@ export {
   postsFilter,
   filterByRandom,
   filterByComments,
-  addfilterOptions,
+  addFilterOptions,
   filterDefault
 };
