@@ -6,6 +6,7 @@ import {newPostCreate} from './form.js';
 import {debounce} from './utils/debounce.js';
 
 const MAX_NUMBER_FOR_RANDOM_FILTER = 10;
+const RERENDER_DELAY = 100;
 const MAX_COMMENTS_POST = 5;
 const MAX_LENGTH_COMMENT = 140;
 const LINK_SERVER_POST = 'https://23.javascript.pages.academy/kekstagram';
@@ -54,8 +55,8 @@ const effectsOptions = [
 
 const addPostsFunction = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
 webRequest(LINK_SERVER_GET, [addPostsFunction], [addPostError]).then((result) => {
-  _.debounce();
-  postsFilter(result, addPostsFunction, MAX_NUMBER_FOR_RANDOM_FILTER);
+  const addPostWithDebounce = _.debounce(addPostsFunction,RERENDER_DELAY);
+  postsFilter(result, addPostWithDebounce, MAX_NUMBER_FOR_RANDOM_FILTER);
 });
 newPostCreate(hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions, LINK_SERVER_POST);
 /*
