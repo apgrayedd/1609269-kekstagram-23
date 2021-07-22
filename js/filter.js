@@ -42,14 +42,14 @@ function postsFilter (posts, addPostsFunction, maxNumberForRandomFilter) {
     addPostsFunction(filterFunct(posts, adds));
     filter.classList.add('img-filters__button--active');
   };
-  const filterDefaultFunction = () => filterFunction(filterDefaultButton,filterDefault);
-  const filterRandomFunction = () => filterFunction(filterRandomButton,filterByRandom,maxNumberForRandomFilter);
-  const filterDiscussedFunction = () => filterFunction(filterDiscussedButton,filterByComments);
+  const filterDefaultHandler = () => filterFunction(filterDefaultButton,filterDefault);
+  const filterRandomHandler = () => filterFunction(filterRandomButton,filterByRandom,maxNumberForRandomFilter);
+  const filterDiscussedHandler = () => filterFunction(filterDiscussedButton,filterByComments);
 
   addFilterOptions();
-  filterDefaultButton.addEventListener('click', filterDefaultFunction, false);
-  filterRandomButton.addEventListener('click', filterRandomFunction, false);
-  filterDiscussedButton.addEventListener('click', filterDiscussedFunction, false);
+  filterDefaultButton.addEventListener('click', filterDefaultHandler, false);
+  filterRandomButton.addEventListener('click', filterRandomHandler, false);
+  filterDiscussedButton.addEventListener('click', filterDiscussedHandler, false);
 }
 
 export {

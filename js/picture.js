@@ -1,6 +1,7 @@
 import {
   createHTMLElement,
-  addStyles
+  addStyles,
+  functionByKeyDown
 } from './util.js';
 
 function addComments (comments, avatarOptions, MAX_COMMENTS) {
@@ -57,7 +58,7 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
   const ESC_KEY_CODE = 27;
   let maxComments = MAX_COMMENTS;
 
-  function clickLikeFunction (evt) {
+  function clickLikeHandler (evt) {
     evt.preventDefault();
     clickLike(buttonLike, postSumLikes, showPostLikes);
   }
@@ -66,34 +67,28 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
     buttonLoader.style.display = maxComments >= comments.length ? 'none' : '';
   }
 
-  function loaderClick (evt) {
+  function loaderClickHandler (evt) {
     evt.preventDefault();
     maxComments += MAX_COMMENTS;
     addComments(comments, avatarOptions, maxComments);
     checkButtonLoader();
   }
 
-  const closePost = () => {
+  const closePostHandler = () => {
     maxComments = MAX_COMMENTS;
     sectionBigPicture.classList.add('hidden');
     buttonLike.classList.remove('likes-count--active');
-    buttonLike.removeEventListener('click', clickLikeFunction, false);
-    buttonLoader.removeEventListener('click', loaderClick, false);
+    buttonLike.removeEventListener('click', clickLikeHandler, false);
+    buttonLoader.removeEventListener('click', loaderClickHandler, false);
     // eslint-disable-next-line no-use-before-define
-    window.removeEventListener('keydown', closePostByKeyPress, false);
-    cancel.removeEventListener('click',closePost, false);
+    window.removeEventListener('keydown', closePostByKeyPressHandler, false);
+    cancel.removeEventListener('click',closePostHandler, false);
     body.classList.remove('modal-open');
   };
 
-  function closePostByKeyPress (evt) {
-    const keyCode = evt.keyCode;
-    if (keyCode === ESC_KEY_CODE) {
-      evt.preventDefault();
-      closePost();
-    }
-  }
+  const closePostByKeyPressHandler = (evt) => functionByKeyDown(evt, ESC_KEY_CODE, closePostHandler);
 
-  function showPostClick (evt) {
+  function showPostClickHandler (evt) {
     evt.preventDefault();
     sectionBigPicture.classList.remove('hidden');
     showPostImg.src = postImg.src;
@@ -102,13 +97,13 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
 
     body.classList.add('modal-open');
     addComments(comments, avatarOptions, MAX_COMMENTS);
-    buttonLike.addEventListener('click', clickLikeFunction, false);
+    buttonLike.addEventListener('click', clickLikeHandler, false);
     checkButtonLoader();
-    buttonLoader.addEventListener('click', loaderClick, false);
-    cancel.addEventListener('click', closePost, false);
-    window.addEventListener('keydown', closePostByKeyPress, false);
+    buttonLoader.addEventListener('click', loaderClickHandler, false);
+    cancel.addEventListener('click', closePostHandler, false);
+    window.addEventListener('keydown', closePostByKeyPressHandler, false);
   }
-  post.addEventListener('click',showPostClick, false);
+  post.addEventListener('click',showPostClickHandler, false);
 }
 
 function addPost (postInfo,avatarOptions,MAX_COMMENTS) {

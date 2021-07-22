@@ -1328,7 +1328,7 @@ main {
           transform: translateX(-50%);
 }
 
-.img-upload__message--loading::after {
+.img-upload__loader {
   content: "";
   position: absolute;
   bottom: 40%;

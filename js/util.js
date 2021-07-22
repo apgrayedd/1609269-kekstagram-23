@@ -10,17 +10,17 @@ function mixArray (items = []) {
 }
 
 function checkRepeatArr(arr, variableProcessing ) {
-  const result = [];
+  const arrValues = [];
 
   for (let str of arr) {
     if (variableProcessing && typeof(str) === 'string') {
       str = variableProcessing(str);
     }
 
-    if (result.includes(str)) {
+    if (arrValues.includes(str)) {
       return false;
     } else {
-      result.push(str);
+      arrValues.push(str);
     }
   }
   return true;
@@ -31,9 +31,8 @@ function findInObj (obj, objKey, value, objKeyForReturn) {
     if (elem[objKey] === value){
       if (objKeyForReturn) {
         return elem[objKeyForReturn];
-      } else {
-        return true;
       }
+      return true;
     }
   }
 }
