@@ -58,8 +58,7 @@ const effectsOptions = [CONSTANT_SLIDER_OPTIONS, chromeEffect, sepiaEffect, marv
 const addPostsFunction = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
 webRequest(LINK_SERVER_GET, [addPostsFunction], [addPostError]).then((result) => {
   if(result) {
-    const addPostWithDebounce = _.debounce(addPostsFunction,RERENDER_DELAY);
-    postsFilter(result, addPostWithDebounce, MAX_NUMBER_FOR_RANDOM_FILTER);
+    postsFilter(result, addPostsFunction, MAX_NUMBER_FOR_RANDOM_FILTER, RERENDER_DELAY);
   }
 });
 newPostCreate(RESCALE_CHANGE_VALUE, hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions, LINK_SERVER_POST);
