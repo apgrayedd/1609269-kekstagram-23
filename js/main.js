@@ -1,4 +1,3 @@
-// import {loadMessage} from './util.js';
 import {postsFilter} from './filter.js';
 import {webRequest} from './web.js';
 import {addPost, addPostError} from './picture.js';
@@ -58,7 +57,9 @@ const heatEffect = {
 const effectsOptions = [CONSTANT_SLIDER_OPTIONS, chromeEffect, sepiaEffect, marvinEffect, phobosEffect, heatEffect];
 const addPostsFunction = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
 webRequest(LINK_SERVER_GET, [addPostsFunction], [addPostError]).then((result) => {
-  const addPostWithDebounce = _.debounce(addPostsFunction,RERENDER_DELAY);
-  postsFilter(result, addPostWithDebounce, MAX_NUMBER_FOR_RANDOM_FILTER);
+  if(result) {
+    const addPostWithDebounce = _.debounce(addPostsFunction,RERENDER_DELAY);
+    postsFilter(result, addPostWithDebounce, MAX_NUMBER_FOR_RANDOM_FILTER);
+  }
 });
 newPostCreate(RESCALE_CHANGE_VALUE, hashFieldOptions, MAX_LENGTH_COMMENT,effectsOptions, LINK_SERVER_POST);
