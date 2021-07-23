@@ -1,4 +1,4 @@
-import './util.js';
+// import {loadMessage} from './util.js';
 import {postsFilter} from './filter.js';
 import {webRequest} from './web.js';
 import {addPost, addPostError} from './picture.js';
@@ -55,7 +55,6 @@ const heatEffect = {
   effectSliderOption : {range: {min: 0,max: 20},start: 20},
   filter: (value) => `brightness(${value/10 + 1})`,
 };
-
 const effectsOptions = [CONSTANT_SLIDER_OPTIONS, chromeEffect, sepiaEffect, marvinEffect, phobosEffect, heatEffect];
 const addPostsFunction = (dataPosts) => addPost(dataPosts, avatarPostOptions, MAX_COMMENTS_POST);
 webRequest(LINK_SERVER_GET, [addPostsFunction], [addPostError]).then((result) => {

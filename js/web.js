@@ -1,3 +1,4 @@
+import {loadMessage} from './util.js';
 
 function webRequest (
   linkServerData,
@@ -6,6 +7,7 @@ function webRequest (
   dataRequest,
 ) {
   const fetchOption = dataRequest ? {method: 'POST',body: new FormData(dataRequest)} : {method: 'GET'};
+  loadMessage();
   return fetch(linkServerData, fetchOption)
     .then((json) => {
       if (json.ok) {
@@ -19,6 +21,7 @@ function webRequest (
           functionOnSuccess(result);
         });
       }
+      loadMessage();
       return result;
     })
     .catch((err) => {
@@ -27,6 +30,7 @@ function webRequest (
           functionOnError(err);
         });
       }
+      loadMessage();
       return false;
     });
 }

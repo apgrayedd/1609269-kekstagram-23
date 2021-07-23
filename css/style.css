@@ -1312,12 +1312,13 @@ main {
  * Экран загрузки изображения
  */
 
-.img-upload__message--loading::before {
+.img-upload__loader--container {
   content: "";
   position: absolute;
   bottom: 40%;
   left: 50%;
 
+  top: 350px;
   width: 300px;
   height: 10px;
 
@@ -1328,11 +1329,21 @@ main {
           transform: translateX(-50%);
 }
 
-.img-upload__loader {
+@keyframes go-left-right {   /* назовём анимацию: "go-left-right" */
+  from {
+    right: 0;               /* от: left: 0px */
+  }
+  to {
+    right: -100px; /* до: left: 100%-50px */
+  }
+}
+
+.img-upload__loader--loader {
   content: "";
   position: absolute;
-  bottom: 40%;
-  left: 50%;
+  bottom: auto;
+  right: 0;
+  left: auto;
 
   width: 200px;
   height: 10px;
@@ -1342,6 +1353,7 @@ main {
   -webkit-transform: translateX(-50%);
       -ms-transform: translateX(-50%);
           transform: translateX(-50%);
+  animation: go-left-right 0.5s infinite alternate;
 }
 
 

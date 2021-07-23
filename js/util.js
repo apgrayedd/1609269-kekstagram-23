@@ -150,6 +150,22 @@ function messageAlert (templateName, buttonOptions) {
   window.addEventListener('keydown', closeFormByEsc, false);
 }
 
+function loadMessage () {
+  const messageInBody = document.querySelector('.img-upload__message--loading');
+  if (messageInBody) {
+    if (messageInBody.classList.contains('hidden')) {
+      messageInBody.classList.remove('hidden');
+    } else {
+      messageInBody.classList.add('hidden');
+    }
+    return messageInBody;
+  }
+  const body = document.querySelector('body');
+  const messageTemplate = document.querySelector('#messages').content;
+  const message = messageTemplate.querySelector('.img-upload__message');
+  body.appendChild(message);
+  return document.querySelector('.img-upload__message--loading');
+}
 
 function limitationValue(min, max, value) {
   return Math.min(Math.max(value, min), max);
@@ -168,5 +184,6 @@ export {
   createHTMLElement,
   messageAlert,
   limitationValue,
-  addStyles
+  addStyles,
+  loadMessage
 };

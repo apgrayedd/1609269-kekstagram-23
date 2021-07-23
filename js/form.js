@@ -8,7 +8,8 @@ import {
   functionByKeyDown,
   messageAlert,
   limitationValue,
-  addStyles
+  addStyles,
+  loadMessage
 } from './util.js';
 import {
   webRequest
@@ -159,45 +160,6 @@ function toStandartOptions () {
   commentInput.value = '';
 }
 
-function loadMessage () {
-  const body = document.querySelector('body');
-  const messageTemplate = document.querySelector('#messages').content;
-  const message = messageTemplate.querySelector('.img-upload__message');
-
-  body.appendChild(message);
-  const messageInBody = body.querySelector('.img-upload__loader');
-
-  // for(let elem = -75; elem < -25; elem+=1){
-  //   const loaderFunct = () => messageInBody.style.transform = `translateX(${elem}%)`;
-  //   const changeLoader = _.debounce(loaderFunct, 100);
-  //   changeLoader();
-  // }
-
-  // в то время как timePassed идёт от 0 до 2000
-  // left изменяет значение от 0px до 400px
-  function draw(timePassed) {
-    const rightValue = (150-timePassed/10) <= 50 ? 50 : 150-timePassed/10;
-    messageInBody.style.left = 'auto';
-    if (rightValue <= 50) {
-      messageInBody.style.right = '50px';
-      messageInBody.style.width = `${200 - timePassed/10}px`;
-    }
-    messageInBody.style.right = `${rightValue}px`;
-  }
-
-  const start = Date.now(); // запомнить время начала
-  const timer = setInterval(() => {
-    // сколько времени прошло с начала анимации?
-    const timePassed = Date.now() - start;
-    if (timePassed >= 2000) {
-      clearInterval(timer); // закончить анимацию через 2 секунды
-      return;
-    }
-    // отрисовать анимацию на момент timePassed, прошедший с начала анимации
-    draw(timePassed);
-  }, 20);
-}
-
 function newPostCreate (rescaleChangeValue, hashFieldOptions, maxLengthComment,sliderEffectsOptions, linkServer) {
   const body = document.querySelector('body');
   const formNewPostCreate = document.querySelector('#upload-select-image');
@@ -306,6 +268,7 @@ function newPostCreate (rescaleChangeValue, hashFieldOptions, maxLengthComment,s
       const newFileReader = new FileReader();
       newFileReader.readAsDataURL(file);
       newFileReader.addEventListener('load', () => {
+        loadMessage();
         formChangeImg.src = newFileReader.result;
         formChangeFile.classList.remove('hidden');
         body.classList.add('modal-open');
