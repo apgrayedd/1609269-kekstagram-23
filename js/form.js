@@ -1,12 +1,12 @@
 import {
   checkRepeatArr,
   findInObj,
-  firstSymbol,
-  minLength,
-  maxLength,
+  checkfirstSymbol,
+  checkMinLength,
+  checkMaxLength,
   matchValidation,
-  functionByKeyDown,
-  messageAlert,
+  createfunctionByKeyDown,
+  createMessageAlert,
   limitationValue,
   addStyles,
   loadMessage
@@ -35,9 +35,9 @@ function rescaleChange (change) {
 }
 
 function checkField (fieldInput, fieldValue, hashOptions) {
-  const message = firstSymbol(fieldValue,hashOptions.firstSymbol) ||
-                  minLength(fieldValue,hashOptions.min) ||
-                  maxLength(fieldValue, hashOptions.max) ||
+  const message = checkfirstSymbol(fieldValue,hashOptions.firstSymbol) ||
+                  checkMinLength(fieldValue,hashOptions.min) ||
+                  checkMaxLength(fieldValue, hashOptions.max) ||
                   matchValidation(fieldValue.slice(1));
   if (message) {
     fieldInput.setCustomValidity(message);
@@ -103,7 +103,7 @@ function choiceFileEffect (evt, sliderEffectsOptions) {
 
 function checkCommentPlace (commentInput, maxLengthComment) {
   commentInput.style = '';
-  const commentStatus =  maxLength(commentInput.value,maxLengthComment);
+  const commentStatus =  checkMaxLength(commentInput.value,maxLengthComment);
   if(commentStatus) {
     commentInput.setCustomValidity(commentStatus);
     commentInput.reportValidity();
@@ -214,13 +214,13 @@ function newPostCreate (rescaleChangeValue, hashFieldOptions, maxLengthComment,s
     window.removeEventListener('keydown', closeNewPostByEscHandler, false);
     toStandartOptions();
   };
-  const errorMessage = () =>
-    messageAlert('error', [{
+  const createErrorMessage = () =>
+    createMessageAlert('error', [{
       name: 'error__button',
       function: [() => newPostFile.click()],
     }]);
-  const successMessage = () => {
-    messageAlert('success', [{name:'success__button'}]);
+  const createSuccessMessage = () => {
+    createMessageAlert('success', [{name:'success__button'}]);
   };
 
   function checkerSubmitPostHandler (evt) {
@@ -243,14 +243,14 @@ function newPostCreate (rescaleChangeValue, hashFieldOptions, maxLengthComment,s
     closeNewPostHandler();
     webRequest(
       linkServer,
-      [successMessage],
-      [errorMessage],
+      [createSuccessMessage],
+      [createErrorMessage],
       formNewPostCreate);
     return true;
   }
 
   function closeNewPostByEscHandler (evt) {
-    functionByKeyDown(evt, ESC_KEY_CODE, closeNewPostHandler);
+    createfunctionByKeyDown(evt, ESC_KEY_CODE, closeNewPostHandler);
   }
 
   function removeEventCloseByEscHandler () {

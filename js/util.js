@@ -37,20 +37,20 @@ function findInObj (obj, objKey, value, objKeyForReturn) {
   }
 }
 
-function firstSymbol (fieldValue,firstSymbolValue) {
+function checkfirstSymbol (fieldValue,firstSymbolValue) {
   if (fieldValue[0] !== firstSymbolValue) {
     return `Первым знаком поля должен быть знак "${firstSymbolValue}"`;
   }
 }
 
 
-function minLength (fieldValue, MIN_LENGTH_FIELD) {
+function checkMinLength (fieldValue, MIN_LENGTH_FIELD) {
   if (fieldValue.length < MIN_LENGTH_FIELD) {
     return `Поле должен состоять хотя бы из ${MIN_LENGTH_FIELD}х символов`;
   }
 }
 
-function maxLength (fieldValue, MAX_LENGTH_FIELD) {
+function checkMaxLength (fieldValue, MAX_LENGTH_FIELD) {
   if (fieldValue.length > MAX_LENGTH_FIELD) {
     return `Поле должен состоять не больше ${MAX_LENGTH_FIELD} символов`;
   }
@@ -70,7 +70,7 @@ function matchValidation (fieldValue) {
 }
 
 
-function functionByKeyDown(evt, keyCode, eventFunction) {
+function createfunctionByKeyDown(evt, keyCode, eventFunction) {
   if (!evt) {evt = window.event;}
   const evtKeyCode = evt.keyCode;
   if (evtKeyCode === keyCode) {
@@ -107,7 +107,7 @@ function addStyles (HTMLElement, stylesObj) {
   }
 }
 
-function messageAlert (templateName, buttonOptions) {
+function createMessageAlert (templateName, buttonOptions) {
   const body = document.querySelector('body');
   const template = document.querySelector(`#${templateName}`).content.querySelector(`.${templateName}`);
   const templateHTMLElem = template.cloneNode(true);
@@ -123,7 +123,7 @@ function messageAlert (templateName, buttonOptions) {
     document.removeEventListener('click', closeOnAnotherForm, false);
   };
   const closeFormByEsc = (evt) => {
-    functionByKeyDown(evt, 27, closeForm);
+    createfunctionByKeyDown(evt, 27, closeForm);
   };
   const closeOnAnotherForm = (evt) => {
     if (!evt.target.classList.contains(`${templateName}__inner`)){
@@ -178,13 +178,13 @@ export {
   findInObj,
   getRandomNumber,
   mixArray,
-  firstSymbol,
-  minLength,
-  maxLength,
+  checkfirstSymbol,
+  checkMinLength,
+  checkMaxLength,
   matchValidation,
-  functionByKeyDown,
+  createfunctionByKeyDown,
   createHTMLElement,
-  messageAlert,
+  createMessageAlert,
   limitationValue,
   addStyles,
   loadMessage
