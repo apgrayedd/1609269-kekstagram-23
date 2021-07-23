@@ -1,7 +1,7 @@
 import {
   createHTMLElement,
   addStyles,
-  functionByKeyDown
+  createfunctionByKeyDown
 } from './util.js';
 
 function addComments (comments, avatarOptions, MAX_COMMENTS) {
@@ -86,7 +86,7 @@ function showPost(post, comments, avatarOptions, MAX_COMMENTS) {
     body.classList.remove('modal-open');
   };
 
-  const closePostByKeyPressHandler = (evt) => functionByKeyDown(evt, ESC_KEY_CODE, closePostHandler);
+  const closePostByKeyPressHandler = (evt) => createfunctionByKeyDown(evt, ESC_KEY_CODE, closePostHandler);
 
   function showPostClickHandler (evt) {
     evt.preventDefault();
