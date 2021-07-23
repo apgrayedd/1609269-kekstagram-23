@@ -151,16 +151,18 @@ function messageAlert (templateName, buttonOptions) {
 }
 
 function loadMessage () {
+  const body = document.querySelector('body');
   const messageInBody = document.querySelector('.img-upload__message--loading');
   if (messageInBody) {
     if (messageInBody.classList.contains('hidden')) {
       messageInBody.classList.remove('hidden');
+      body.classList.add('modal-open');
     } else {
       messageInBody.classList.add('hidden');
+      body.classList.remove('modal-open');
     }
     return messageInBody;
   }
-  const body = document.querySelector('body');
   const messageTemplate = document.querySelector('#messages').content;
   const message = messageTemplate.querySelector('.img-upload__message');
   body.appendChild(message);

@@ -240,10 +240,11 @@ function newPostCreate (rescaleChangeValue, hashFieldOptions, maxLengthComment,s
       });
       return false;
     }
+    closeNewPostHandler();
     webRequest(
       linkServer,
-      [closeNewPostHandler, successMessage],
-      [closeNewPostHandler, errorMessage],
+      [successMessage],
+      [errorMessage],
       formNewPostCreate);
     return true;
   }
